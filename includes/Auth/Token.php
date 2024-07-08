@@ -22,8 +22,8 @@ class Token {
 
     public function add_settings_page() {
         add_options_page(
-            'SM Post Connector Settings',
-            'SM Post Connector',
+            __('SM Post Connector Settings', 'sm-post-connector'),
+            __('SM Post Connector', 'sm-post-connector'),
             'manage_options',
             'sm-post-connector',
             [$this, 'render_settings_page']
@@ -38,21 +38,21 @@ class Token {
 
         add_settings_section(
             'sm_post_connector_settings_section_token',
-            'Token Settings',
+            __('Token Settings', 'sm-post-connector'),
             null,
             'sm-post-connector-token'
         );
 
         add_settings_section(
             'sm_post_connector_settings_section_post',
-            'Post Settings',
+            __('Post Settings', 'sm-post-connector'),
             null,
             'sm-post-connector-post'
         );
 
         add_settings_field(
             'sm_post_connector_token',
-            'Access Token',
+            __('Access Token', 'sm-post-connector'),
             [$this, 'render_token_field'],
             'sm-post-connector-token',
             'sm_post_connector_settings_section_token'
@@ -60,7 +60,7 @@ class Token {
 
         add_settings_field(
             'sm_post_connector_default_post_type',
-            'Default Post Type',
+            __('Default Post Type', 'sm-post-connector'),
             [$this, 'render_post_type_field'],
             'sm-post-connector-post',
             'sm_post_connector_settings_section_post'
@@ -68,7 +68,7 @@ class Token {
 
         add_settings_field(
             'sm_post_connector_default_author',
-            'Default Author',
+            __('Default Author', 'sm-post-connector'),
             [$this, 'render_author_field'],
             'sm-post-connector-post',
             'sm_post_connector_settings_section_post'
@@ -76,7 +76,7 @@ class Token {
 
         add_settings_field(
             'sm_post_connector_default_category',
-            'Default Category',
+            __('Default Category', 'sm-post-connector'),
             [$this, 'render_category_field'],
             'sm-post-connector-post',
             'sm_post_connector_settings_section_post'
@@ -87,10 +87,10 @@ class Token {
         $active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'token';
         ?>
         <div class="wrap">
-            <h1>SM Post Connector Settings</h1>
+            <h1><?php echo esc_html(__('SM Post Connector Settings', 'sm-post-connector')); ?></h1>
             <h2 class="nav-tab-wrapper">
-                <a href="?page=sm-post-connector&tab=token" class="nav-tab <?php echo $active_tab == 'token' ? 'nav-tab-active' : ''; ?>">Token Settings</a>
-                <a href="?page=sm-post-connector&tab=post" class="nav-tab <?php echo $active_tab == 'post' ? 'nav-tab-active' : ''; ?>">Post Settings</a>
+                <a href="?page=sm-post-connector&tab=token" class="nav-tab <?php echo $active_tab == 'token' ? 'nav-tab-active' : ''; ?>"><?php echo esc_html(__('Token Settings', 'sm-post-connector')); ?></a>
+                <a href="?page=sm-post-connector&tab=post" class="nav-tab <?php echo $active_tab == 'post' ? 'nav-tab-active' : ''; ?>"><?php echo esc_html(__('Post Settings', 'sm-post-connector')); ?></a>
             </h2>
             <form method="post" action="options.php">
                 <?php
@@ -101,13 +101,13 @@ class Token {
                     settings_fields('sm_post_connector_settings');
                     do_settings_sections('sm-post-connector-post');
                 }
-                submit_button( __( 'Save Changes', 'textdomain' ), 'primary' );
+                submit_button( __( 'Save Changes', 'sm-post-connector' ), 'primary' );
                 ?>
             </form>
             <?php if ($active_tab == 'token'): ?>
             <form method="post">
                 <input type="hidden" name="generate_new_token" value="1">
-                <?php submit_button( __('Generate New Token'), 'secondary' ); ?>
+                <?php submit_button( __('Generate New Token', 'sm-post-connector'), 'secondary' ); ?>
             </form>
             <?php $this->handle_generate_token_request(); ?>
             <?php endif; ?>
@@ -156,7 +156,7 @@ class Token {
     }
 
     public function render_category_field() {
-        $categories = get_categories();
+        $categories = get_categories(['hide_empty' => false,]);
         $default_category = get_option('sm_post_connector_default_category', '');
 
         ?>
