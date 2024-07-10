@@ -121,9 +121,30 @@ class Token {
             $token = $this->generate_token();
         }
         ?>
-        <input type="text" class="regular-text" name="sm_post_connector_token" value="<?php echo esc_attr($token); ?>" readonly>
+        <div style="position: relative;">
+            <input type="text" id="sm_post_connector_token" class="regular-text" name="sm_post_connector_token" value="<?php echo esc_attr($token); ?>" readonly>
+            <button type="button" class="button button-secondary" onclick="copyTokenToClipboard()">Copy Token</button>
+        </div>
+        <div id="tokenSnackbar" class="components-snackbar  " style="display: none;">
+            Token copied to clipboard!
+        </div>
+        <script>
+        function copyTokenToClipboard() {
+            var copyText = document.getElementById("sm_post_connector_token");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); /* For mobile devices */
+            document.execCommand("copy");
+    
+            // Show snackbar
+            var snackbar = document.getElementById("tokenSnackbar");
+            snackbar.style.display = "block";
+            setTimeout(function(){
+                snackbar.style.display = "none";
+            }, 3000); // Hide snackbar after 3 seconds
+        }
+        </script>
         <?php
-    }
+    }     
 
     public function render_post_type_field() {
         $post_types = get_post_types(['public' => true], 'objects');
