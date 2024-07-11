@@ -22,8 +22,8 @@ class Token {
 
     public function add_settings_page() {
         add_options_page(
-            'SM Post Connector Settings',
-            'SM Post Connector',
+            __('SM Post Connector Settings', 'sm-post-connector'),
+            __('SM Post Connector', 'sm-post-connector'),
             'manage_options',
             'sm-post-connector',
             [$this, 'render_settings_page']
@@ -32,37 +32,85 @@ class Token {
 
     public function register_settings() {
         register_setting('sm_post_connector_settings', 'sm_post_connector_token');
+        register_setting('sm_post_connector_settings', 'sm_post_connector_default_post_type');
+        register_setting('sm_post_connector_settings', 'sm_post_connector_default_author');
+        register_setting('sm_post_connector_settings', 'sm_post_connector_default_category');
+
         add_settings_section(
-            'sm_post_connector_settings_section',
-            'Token Settings',
+            'sm_post_connector_settings_section_token',
+            __('Token Settings', 'sm-post-connector'),
             null,
-            'sm-post-connector'
+            'sm-post-connector-token'
         );
+
+        add_settings_section(
+            'sm_post_connector_settings_section_post',
+            __('Post Settings', 'sm-post-connector'),
+            null,
+            'sm-post-connector-post'
+        );
+
         add_settings_field(
             'sm_post_connector_token',
-            'Access Token',
+            __('Access Token', 'sm-post-connector'),
             [$this, 'render_token_field'],
-            'sm-post-connector',
-            'sm_post_connector_settings_section'
+            'sm-post-connector-token',
+            'sm_post_connector_settings_section_token'
+        );
+
+        add_settings_field(
+            'sm_post_connector_default_post_type',
+            __('Default Post Type', 'sm-post-connector'),
+            [$this, 'render_post_type_field'],
+            'sm-post-connector-post',
+            'sm_post_connector_settings_section_post'
+        );
+
+        add_settings_field(
+            'sm_post_connector_default_author',
+            __('Default Author', 'sm-post-connector'),
+            [$this, 'render_author_field'],
+            'sm-post-connector-post',
+            'sm_post_connector_settings_section_post'
+        );
+
+        add_settings_field(
+            'sm_post_connector_default_category',
+            __('Default Category', 'sm-post-connector'),
+            [$this, 'render_category_field'],
+            'sm-post-connector-post',
+            'sm_post_connector_settings_section_post'
         );
     }
 
     public function render_settings_page() {
+        $active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'token';
         ?>
         <div class="wrap">
-            <h1>SM Post Connector Settings</h1>
+            <h1><?php echo esc_html(__('SM Post Connector Settings', 'sm-post-connector')); ?></h1>
+            <h2 class="nav-tab-wrapper">
+                <a href="?page=sm-post-connector&tab=token" class="nav-tab <?php echo $active_tab == 'token' ? 'nav-tab-active' : ''; ?>"><?php echo esc_html(__('Token Settings', 'sm-post-connector')); ?></a>
+                <a href="?page=sm-post-connector&tab=post" class="nav-tab <?php echo $active_tab == 'post' ? 'nav-tab-active' : ''; ?>"><?php echo esc_html(__('Post Settings', 'sm-post-connector')); ?></a>
+            </h2>
             <form method="post" action="options.php">
                 <?php
-                settings_fields('sm_post_connector_settings');
-                do_settings_sections('sm-post-connector');
-                submit_button();
+                if ($active_tab == 'token') {
+                    settings_fields('sm_post_connector_settings');
+                    do_settings_sections('sm-post-connector-token');
+                } else {
+                    settings_fields('sm_post_connector_settings');
+                    do_settings_sections('sm-post-connector-post');
+                }
+                submit_button( __( 'Save Changes', 'sm-post-connector' ), 'primary' );
                 ?>
             </form>
+            <?php if ($active_tab == 'token'): ?>
             <form method="post">
                 <input type="hidden" name="generate_new_token" value="1">
-                <?php submit_button('Generate New Token'); ?>
+                <?php submit_button( __('Generate New Token', 'sm-post-connector'), 'secondary' ); ?>
             </form>
             <?php $this->handle_generate_token_request(); ?>
+            <?php endif; ?>
         </div>
         <?php
     }
@@ -73,7 +121,73 @@ class Token {
             $token = $this->generate_token();
         }
         ?>
-        <input type="text" name="sm_post_connector_token" value="<?php echo esc_attr($token); ?>" readonly>
+        <div style="position: relative;">
+            <input type="text" id="sm_post_connector_token" class="regular-text" name="sm_post_connector_token" value="<?php echo esc_attr($token); ?>" readonly>
+            <button type="button" class="button button-secondary" onclick="copyTokenToClipboard()">Copy Token</button>
+        </div>
+        <div id="tokenSnackbar" class="components-snackbar  " style="display: none;">
+            Token copied to clipboard!
+        </div>
+        <script>
+        function copyTokenToClipboard() {
+            var copyText = document.getElementById("sm_post_connector_token");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); /* For mobile devices */
+            document.execCommand("copy");
+    
+            // Show snackbar
+            var snackbar = document.getElementById("tokenSnackbar");
+            snackbar.style.display = "block";
+            setTimeout(function(){
+                snackbar.style.display = "none";
+            }, 3000); // Hide snackbar after 3 seconds
+        }
+        </script>
+        <?php
+    }     
+
+    public function render_post_type_field() {
+        $post_types = get_post_types(['public' => true], 'objects');
+        $default_post_type = get_option('sm_post_connector_default_post_type', '');
+
+        ?>
+        <select name="sm_post_connector_default_post_type">
+            <?php foreach ($post_types as $post_type): ?>
+                <option value="<?php echo esc_attr($post_type->name); ?>" <?php selected($default_post_type, $post_type->name); ?>>
+                    <?php echo esc_html($post_type->label); ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+        <?php
+    }
+
+    public function render_author_field() {
+        $authors = get_users(['who' => 'authors']);
+        $default_author = get_option('sm_post_connector_default_author', '');
+
+        ?>
+        <select name="sm_post_connector_default_author">
+            <?php foreach ($authors as $author): ?>
+                <option value="<?php echo esc_attr($author->ID); ?>" <?php selected($default_author, $author->ID); ?>>
+                    <?php echo esc_html($author->display_name); ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+        <?php
+    }
+
+    public function render_category_field() {
+        $categories = get_categories(['hide_empty' => false,]);
+        $default_category = get_option('sm_post_connector_default_category', '');
+
+        ?>
+        <select name="sm_post_connector_default_category">
+            <?php foreach ($categories as $category): ?>
+                <option value="<?php echo esc_attr($category->term_id); ?>" <?php selected($default_category, $category->term_id); ?>>
+                    <?php echo esc_html($category->name); ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
         <?php
     }
 
