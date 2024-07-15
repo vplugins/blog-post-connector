@@ -25,10 +25,14 @@ class Status {
     public function get_status(WP_REST_Request $request) {
         
         $version = Globals::get_version();
+
+        
     
         return new \WP_REST_Response([
-            'status' => 'OK',
-            'version' => $version,
+            'status' => 200,
+            'data' => [
+                'version' => $version,
+            ]
         ], 200);
     }
     
