@@ -8,4 +8,9 @@ class Globals {
     public static function get_version() {
         return self::PLUGIN_VERSION;
     }
+    public static function get_categories() {
+        return get_categories([
+            'hide_empty' => false
+        ]);
+    }
 }
