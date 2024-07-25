@@ -2,24 +2,46 @@
 
 namespace VPlugins\SMPostConnector\Endpoints;
 
+use WP_REST_Request;
+use VPlugins\SMPostConnector\Middleware\AuthMiddleware;
+use VPlugins\SMPostConnector\Helper\Globals;
+
 class GetAuthors {
+    protected $auth_middleware;
+
     public function __construct() {
+        $this->auth_middleware = new AuthMiddleware();
         add_action('rest_api_init', [$this, 'register_routes']);
     }
 
     public function register_routes() {
-        register_rest_route('sm-connect/v1', '/get-authors', [
+        register_rest_route('sm-connect/v1', '/authors', [
             'methods' => 'GET',
             'callback' => [$this, 'get_authors'],
-            'permission_callback' => [$this, 'permissions_check']
+            'permission_callback' => [$this->auth_middleware, 'permissions_check']
         ]);
     }
 
-    public function get_authors($request) {
-        // Handle the authors retrieval
-    }
+    public function get_authors(WP_REST_Request $request) {
+        $authors = Globals::get_authors();
+        $formattedAuthors = [];
+        $authorCount = 1;
 
-    public function permissions_check($request) {
-        // Check user permissions
+        foreach ($authors as $author) {
+            $formattedAuthors[$authorCount] = [
+                'name' => $author->display_name,
+                'id' => $author->ID,
+                'num_posts' => count_user_posts($author->ID)
+            ];
+            $authorCount++;
+        }
+
+        return new \WP_REST_Response([
+            'status' => 200,
+            'data' => [
+                'authors' => $formattedAuthors,
+            ]
+        ], 200);
     }
 }
+

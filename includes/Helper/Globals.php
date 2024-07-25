@@ -13,4 +13,13 @@ class Globals {
             'hide_empty' => false
         ]);
     }
+
+    public static function get_authors() {
+        $args = [
+            'role__in' => ['Author', 'Editor', 'Administrator'],
+            'orderby' => 'display_name',
+            'order' => 'ASC'
+        ];
+        return get_users($args);
+    }
 }
