@@ -22,100 +22,110 @@ class CreatePost {
     }
 
     public function create_post(WP_REST_Request $request) {
-        // Fetch parameters using get_param()
         $title = $request->get_param('title');
         $content = $request->get_param('content');
-        $status = $request->get_param('status') ? sanitize_text_field($request->get_param('status')) : 'draft';
-        $date = $request->get_param('date') ? sanitize_text_field($request->get_param('date')) : null;
-        $author = $request->get_param('author') ? intval($request->get_param('author')) : get_current_user_id();
-        $category = $request->get_param('category') ? array_map('intval', (array)$request->get_param('category')) : [];
-        $tag = $request->get_param('tag') ? array_map('sanitize_text_field', (array)$request->get_param('tag')) : [];
+        $status = $request->get_param('status');
+        $date = $request->get_param('date');
+        $author_id = $request->get_param('author');
+        $categories = $request->get_param('category');
+        $tags = $request->get_param('tag');
+        $featured_image_url = $request->get_param('featured_image');
     
         // Validate required parameters
-        if (empty($title) || empty($content)) {
-            return new WP_REST_Response(['status' => 400, 'message' => 'Title and content are required'], 400);
+        if (empty($title) || empty($content) || empty($status) || empty($author_id)) {
+            return new WP_REST_Response(['status' => 400, 'message' => 'Missing required parameters.'], 400);
         }
     
         // Validate post status
-        $valid_statuses = ['publish', 'pending', 'draft', 'future', 'private'];
-        if (!in_array($status, $valid_statuses, true)) {
-            return new WP_REST_Response(['status' => 400, 'message' => 'Invalid post status'], 400);
+        $valid_statuses = ['publish', 'future', 'draft'];
+        if (!in_array($status, $valid_statuses)) {
+            return new WP_REST_Response(['status' => 400, 'message' => 'Invalid post status.'], 400);
         }
     
-        // Validate date if status is "future" or if date is provided
-        if ($status === 'future') {
-            if (empty($date)) {
-                return new WP_REST_Response(['status' => 400, 'message' => 'Date parameter is required for future posts'], 400);
-            }
-            
-            $date_timestamp = strtotime($date);
-            if ($date_timestamp === false || $date_timestamp <= current_time('timestamp')) {
-                return new WP_REST_Response(['status' => 400, 'message' => 'Date must be a future date'], 400);
-            }
-        } elseif ($status === 'publish' && !empty($date)) {
-            $date_timestamp = strtotime($date);
-            if ($date_timestamp === false || $date_timestamp > current_time('timestamp')) {
-                return new WP_REST_Response(['status' => 400, 'message' => 'Date must be a past date for published posts'], 400);
-            }
+        // Validate date parameter if required
+        if ($status === 'future' && empty($date)) {
+            return new WP_REST_Response(['status' => 400, 'message' => 'Date is required for future posts.'], 400);
         }
     
-        // Validate categories
-        foreach ($category as $cat_id) {
-            if (!term_exists($cat_id, 'category')) {
-                return new WP_REST_Response(['status' => 400, 'message' => 'Invalid category ID'], 400);
-            }
+        if ($status === 'publish' && !empty($date) && strtotime($date) > time()) {
+            return new WP_REST_Response(['status' => 400, 'message' => 'Date for publish status must be a past date.'], 400);
         }
     
-        // Validate tags
-        foreach ($tag as $tag_name) {
-            if (!is_string($tag_name) || strlen($tag_name) > 255) {
-                return new WP_REST_Response(['status' => 400, 'message' => 'Invalid tag name'], 400);
-            }
+        // Check if post with the same title already exists
+        $existing_post = get_page_by_title($title, OBJECT, 'post');
+        if ($existing_post) {
+            return new WP_REST_Response(['status' => 400, 'message' => 'A post with this title already exists.'], 400);
         }
     
-        // Sanitize title and content
-        $title = sanitize_text_field($title);
-        $content = sanitize_textarea_field($content);
+        // Handle featured image
+        $attachment_id = 0;
+        if (!empty($featured_image_url)) {
+            $image_data = $this->download_image($featured_image_url);
+            if ($image_data['status'] === 'error') {
+                return new WP_REST_Response(['status' => 400, 'message' => $image_data['message']], 400);
+            }
+            $attachment_id = $this->upload_image($image_data['file_path']);
+        }
     
-        // Create the post array
+        // Create the post
         $post_data = [
-            'post_title'   => $title,
-            'post_content' => $content,
+            'post_title'   => sanitize_text_field($title),
+            'post_content' => wp_kses_post($content),
             'post_status'  => $status,
-            'post_date'    => $status === 'future' ? $date : current_time('mysql'),
-            'post_author'  => $author,
-            'post_category'=> $category,
+            'post_date'    => ($status === 'future') ? date('Y-m-d H:i:s', strtotime($date)) : current_time('mysql'),
+            'post_author'  => (int) $author_id,
+            'post_category'=> !empty($categories) ? array_map('intval', $categories) : [],
+            'tags_input'   => !empty($tags) ? array_map('sanitize_text_field', $tags) : [],
+            'meta_input'   => ['added_by_sm_plugin' => true]
         ];
     
         // Insert the post into the database
         $post_id = wp_insert_post($post_data);
     
-        if (is_wp_error($post_id)) {
-            return new WP_REST_Response(['status' => 500, 'message' => 'Post creation failed'], 500);
+        if ($post_id && $attachment_id) {
+            set_post_thumbnail($post_id, $attachment_id);
         }
     
-        if ($post_id === 0) {
-            return new WP_REST_Response(['status' => 400, 'message' => 'Invalid parameter'], 400);
+        if ($post_id) {
+            $post_url = get_permalink($post_id);
+            return new WP_REST_Response([
+                'status' => 200,
+                'data'   => [
+                    'post_id'  => $post_id,
+                    'post_url' => $post_url,
+                ]
+            ], 200);
         }
     
-        // Add tags
-        wp_set_post_tags($post_id, $tag);
+        return new WP_REST_Response(['status' => 500, 'message' => 'Failed to create post.'], 500);
+    }
     
-        // Add custom boolean field
-        update_post_meta($post_id, '_sm_post_connector_added', true);
+    private function download_image($image_url) {
+        $response = wp_remote_get($image_url);
+        if (is_wp_error($response) || wp_remote_retrieve_response_code($response) !== 200) {
+            return ['status' => 'error', 'message' => 'Failed to download image.'];
+        }
     
-        // Get the post URL
-        $post_url = get_permalink($post_id);
+        $file_path = wp_upload_dir()['path'] . '/' . basename($image_url);
+        file_put_contents($file_path, wp_remote_retrieve_body($response));
     
-        // Return success response
-        $response_data = [
-            'status' => 200,
-            'data'   => [
-                'post_id' => $post_id,
-                'post_url'=> $post_url,
-            ]
+        return ['status' => 'success', 'file_path' => $file_path];
+    }
+    
+    private function upload_image($file_path) {
+        $wp_filetype = wp_check_filetype(basename($file_path), null);
+        $attachment = [
+            'post_mime_type' => $wp_filetype['type'],
+            'post_title'     => sanitize_file_name(basename($file_path)),
+            'post_content'   => '',
+            'post_status'    => 'inherit'
         ];
     
-        return new WP_REST_Response($response_data, 200);
+        $attach_id = wp_insert_attachment($attachment, $file_path);
+        require_once ABSPATH . 'wp-admin/includes/image.php';
+        $attach_data = wp_generate_attachment_metadata($attach_id, $file_path);
+        wp_update_attachment_metadata($attach_id, $attach_data);
+    
+        return $attach_id;
     }
 }
