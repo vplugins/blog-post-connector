@@ -95,7 +95,7 @@ class CreatePost {
         }
     
         if ($post_id === 0) {
-            return new WP_REST_Response(['status' => 400, 'message' => 'Invalid date parameter'], 400);
+            return new WP_REST_Response(['status' => 400, 'message' => 'Invalid parameter'], 400);
         }
     
         // Add tags
