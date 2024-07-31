@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" bootstrap="tests/bootstrap.php" backupGlobals="false" processIsolation="false" colors="false" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
+  <coverage>
+    <include>
+      <directory suffix=".php">includes</directory>
+    </include>
+    <exclude/>
+  </coverage>
+  <testsuites>
+    <testsuite name="SM Post Connector">
+      <directory suffix="Test.php">./tests/includes</directory>
+      <exclude>tests/phpunit/multisite</exclude>
+    </testsuite>
+  </testsuites>
+  <php>
+    <ini name="error_reporting" value="32767"/>
+    <ini name="display_errors" value="1"/>
+    <ini name="display_startup_errors" value="1"/>
+  </php>
+</phpunit>
