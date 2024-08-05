@@ -35,7 +35,14 @@ class DeletePost {
         }
 
         // Check if post exists
-        if (get_post($post_id) === null) {
+        $post = get_posts([
+            'include' => [$post_id],
+            'post_type' => 'any',
+            'post_status' => 'any',
+            'numberposts' => 1,
+        ]);
+
+        if (empty($post)) {
             return new WP_REST_Response([
                 'status' => 404,
                 'message' => 'Post not found'
@@ -44,10 +51,14 @@ class DeletePost {
 
         // Determine if the post should be trashed or permanently deleted
         // By default, if trash is not provided, it will be set to true (move to trash)
-        $force_delete = ($trash === null || $trash === 'true') ? false : true;
+        $force_delete = ($trash === 'false') ? true : false;
 
         // Delete the post
-        $deleted = wp_delete_post($post_id, $force_delete);
+        if ($force_delete) {
+            $deleted = wp_delete_post($post_id, true);
+        } else {
+            $deleted = wp_trash_post($post_id);
+        }
 
         if ($deleted) {
             return new WP_REST_Response([
