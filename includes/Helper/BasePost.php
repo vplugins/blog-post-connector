@@ -5,6 +5,7 @@ namespace VPlugins\SMPostConnector\Helper;
 use WP_REST_Request;
 use WP_REST_Response;
 use VPlugins\SMPostConnector\Middleware\AuthMiddleware;
+use VPlugins\SMPostConnector\Helper\Response;
 
 abstract class BasePost {
     protected $auth_middleware;
@@ -20,13 +21,13 @@ abstract class BasePost {
         $post_id = $is_update ? $request->get_param('id') : null;
 
         if ($is_update && !$post_id) {
-            return new WP_REST_Response(['status' => 400, 'message' => 'Post ID is required for updating.'], 400);
+            return Response::error('post_id_required', 400);
         }
 
         if ($is_update) {
             $post = get_post($post_id);
             if (!$post) {
-                return new WP_REST_Response(['status' => 404, 'message' => 'Post not found.'], 404);
+                return Response::error('post_not_found', 404);
             }
         }
 
@@ -40,31 +41,31 @@ abstract class BasePost {
         $featured_image_url = $request->get_param('featured_image');
 
         if (empty($title) || empty($content) || empty($status) || empty($author_id)) {
-            return new WP_REST_Response(['status' => 400, 'message' => 'Missing required parameters.'], 400);
+            return Response::error('missing_required_parameters', 400);
         }
 
         $valid_statuses = ['publish', 'future', 'draft'];
         if (!in_array($status, $valid_statuses)) {
-            return new WP_REST_Response(['status' => 400, 'message' => 'Invalid post status.'], 400);
+            return Response::error('invalid_post_status', 400);
         }
 
         if ($status === 'future' && empty($date)) {
-            return new WP_REST_Response(['status' => 400, 'message' => 'Date is required for future posts.'], 400);
+            return Response::error('date_required_for_future_posts', 400);
         }
 
         if ($status === 'publish' && !empty($date) && strtotime($date) > time()) {
-            return new WP_REST_Response(['status' => 400, 'message' => 'Date for publish status must be a past date.'], 400);
+            return Response::error('date_for_publish_status_must_be_past', 400);
         }
 
         if (!$is_update && get_page_by_title($title, OBJECT, 'post')) {
-            return new WP_REST_Response(['status' => 400, 'message' => 'A post with this title already exists.'], 400);
+            return Response::error('post_with_title_exists', 400);
         }
 
         $attachment_id = 0;
         if (!empty($featured_image_url)) {
             $image_data = $this->download_image($featured_image_url);
             if ($image_data['status'] === 'error') {
-                return new WP_REST_Response(['status' => 400, 'message' => $image_data['message']], 400);
+                return Response::error($image_data['message'], 400);
             }
             $attachment_id = $this->upload_image($image_data['file_path']);
         }
@@ -93,16 +94,13 @@ abstract class BasePost {
 
         if ($result_post_id) {
             $post_url = get_permalink($result_post_id);
-            return new WP_REST_Response([
-                'status' => 200,
-                'data'   => [
-                    'post_id'  => $result_post_id,
-                    'post_url' => $post_url,
-                ]
-            ], 200);
+            return Response::success(
+                $is_update ? 'post_updated_successfully' : 'post_created_successfully',
+                ['post_id' => $result_post_id, 'post_url' => $post_url]
+            );
         }
 
-        return new WP_REST_Response(['status' => 500, 'message' => 'Failed to ' . ($is_update ? 'update' : 'create') . ' post.'], 500);
+        return Response::error($is_update ? 'failed_to_update_post' : 'failed_to_create_post', 500);
     }
 
     protected function download_image($image_url) {
