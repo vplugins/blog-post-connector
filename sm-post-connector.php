@@ -15,17 +15,31 @@ if (!defined('ABSPATH')) {
 require_once __DIR__ . '/vendor/autoload.php';
 
 use VPlugins\SMPostConnector\Auth\Token;
+use VPlugins\SMPostConnector\Endpoints\{
+    CreatePost,
+    DeletePost,
+    GetAuthors,
+    GetCategories,
+    Status
+};
 
-use VPlugins\SMPostConnector\Endpoints\CreatePost;
-use VPlugins\SMPostConnector\Endpoints\DeletePost;
-use VPlugins\SMPostConnector\Endpoints\GetAuthors;
-use VPlugins\SMPostConnector\Endpoints\GetCategories;
-use VPlugins\SMPostConnector\Endpoints\Status;
+// Endpoint Registry Class
+class EndpointRegistry {
+    private static $endpoints = [
+        CreatePost::class,
+        DeletePost::class,
+        GetAuthors::class,
+        GetCategories::class,
+        Status::class,
+        Token::class,
+    ];
+
+    public static function initialize() {
+        foreach (self::$endpoints as $endpoint) {
+            new $endpoint();
+        }
+    }
+}
 
 // Initialize the plugin endpoints
-new CreatePost();
-new DeletePost();
-new GetAuthors();
-new GetCategories();
-new Status();
-new Token();
+EndpointRegistry::initialize();
