@@ -1,6 +1,6 @@
 <?php
 
-namespace VPlugins\SMPostConnector\Endpoints;
+namespace VPlugins\SMPostConnector\Helper;
 
 use WP_REST_Request;
 use WP_REST_Response;

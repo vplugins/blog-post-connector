@@ -2,6 +2,8 @@
 
 namespace VPlugins\SMPostConnector\Endpoints;
 
+use VPlugins\SMPostConnector\Helper\BasePost;
+
 class CreatePost extends BasePost {
     public function register_routes() {
         register_rest_route('sm-connect/v1', '/create-post', [
