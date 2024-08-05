@@ -51,7 +51,7 @@ class DeletePost {
 
         // Determine if the post should be trashed or permanently deleted
         // By default, if trash is not provided, it will be set to true (move to trash)
-        $force_delete = ($trash === 'false') ? true : false;
+        $force_delete = ($trash === 'true') ? true : false;
 
         // Delete the post
         if ($force_delete) {
@@ -74,5 +74,3 @@ class DeletePost {
     }
 }
 
-// Ensure class is instantiated
-new \VPlugins\SMPostConnector\Endpoints\DeletePost();
