@@ -38,7 +38,7 @@ class DeletePost {
         $post = get_posts([
             'include' => [$post_id],
             'post_type' => 'any',
-            'post_status' => 'any',
+            'post_status' => array( 'any', 'trash' ),
             'numberposts' => 1,
         ]);
 
