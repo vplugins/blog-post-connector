@@ -17,12 +17,14 @@ require_once __DIR__ . '/vendor/autoload.php';
 use VPlugins\SMPostConnector\Auth\Token;
 
 use VPlugins\SMPostConnector\Endpoints\CreatePost;
+use VPlugins\SMPostConnector\Endpoints\DeletePost;
 use VPlugins\SMPostConnector\Endpoints\GetAuthors;
 use VPlugins\SMPostConnector\Endpoints\GetCategories;
 use VPlugins\SMPostConnector\Endpoints\Status;
 
 // Initialize the plugin endpoints
 new CreatePost();
+new DeletePost();
 new GetAuthors();
 new GetCategories();
 new Status();
