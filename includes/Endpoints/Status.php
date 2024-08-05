@@ -5,6 +5,7 @@ namespace VPlugins\SMPostConnector\Endpoints;
 use WP_REST_Request;
 use VPlugins\SMPostConnector\Middleware\AuthMiddleware;
 use VPlugins\SMPostConnector\Helper\Globals;
+use VPlugins\SMPostConnector\Helper\Response;
 
 class Status {
     protected $auth_middleware;
@@ -23,15 +24,12 @@ class Status {
     }
 
     public function get_status(WP_REST_Request $request) {
-        
         $version = Globals::get_version();
-    
-        return new \WP_REST_Response([
-            'status' => 200,
-            'data' => [
-                'version' => $version,
-            ]
-        ], 200);
+        $success_message = Globals::get_success_message('status_retrieved');
+        
+        // Use the Response helper for a standard format
+        return Response::success($success_message, [
+            'version' => $version,
+        ]);
     }
-    
 }
