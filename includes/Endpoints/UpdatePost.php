@@ -4,16 +4,16 @@ namespace VPlugins\SMPostConnector\Endpoints;
 
 use VPlugins\SMPostConnector\Helper\BasePost;
 
-class CreatePost extends BasePost {
+class UpdatePost extends BasePost {
     public function register_routes() {
-        register_rest_route('sm-connect/v1', '/create-post', [
+        register_rest_route('sm-connect/v1', '/update-post', [
             'methods' => 'POST',
-            'callback' => [$this, 'create_post'],
+            'callback' => [$this, 'update_post'],
             'permission_callback' => [$this->auth_middleware, 'permissions_check']
         ]);
     }
 
-    public function create_post($request) {
-        return $this->handle_post_request($request);
+    public function update_post($request) {
+        return $this->handle_post_request($request, true);
     }
 }

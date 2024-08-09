@@ -18,6 +18,7 @@ use VPlugins\SMPostConnector\Auth\Token;
 use VPlugins\SMPostConnector\Endpoints\{
     CreatePost,
     DeletePost,
+    UpdatePost,
     GetAuthors,
     GetCategories,
     Status
@@ -28,6 +29,7 @@ class EndpointRegistry {
     private static $endpoints = [
         CreatePost::class,
         DeletePost::class,
+        UpdatePost::class,
         GetAuthors::class,
         GetCategories::class,
         Status::class,

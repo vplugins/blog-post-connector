@@ -5,6 +5,7 @@ namespace VPlugins\SMPostConnector\Endpoints;
 use WP_REST_Request;
 use VPlugins\SMPostConnector\Middleware\AuthMiddleware;
 use VPlugins\SMPostConnector\Helper\Globals;
+use VPlugins\SMPostConnector\Helper\Response;
 
 class GetAuthors {
     protected $auth_middleware;
@@ -36,12 +37,11 @@ class GetAuthors {
             $authorCount++;
         }
 
-        return new \WP_REST_Response([
-            'status' => 200,
-            'data' => [
-                'authors' => $formattedAuthors,
+        return Response::success(
+            Globals::get_success_message('authors_retrieved'), 
+            [
+                'authors' => $formattedAuthors
             ]
-        ], 200);
+        );
     }
 }
-
