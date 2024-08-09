@@ -1,5 +1,4 @@
-<?php
-
+<?php 
 namespace VPlugins\SMPostConnector\Helper;
 
 use WP_REST_Request;
@@ -40,24 +39,24 @@ abstract class BasePost {
         $tags = $request->get_param('tag');
         $featured_image_url = $request->get_param('featured_image');
 
-        if (empty($title) || empty($content) || empty($status) || empty($author_id)) {
-            return Response::error('missing_required_parameters', 400);
-        }
-
+        // Validate status if provided
         $valid_statuses = ['publish', 'future', 'draft'];
-        if (!in_array($status, $valid_statuses)) {
+        if ($status && !in_array($status, $valid_statuses)) {
             return Response::error('invalid_post_status', 400);
         }
 
+        // Validate date if status is 'future'
         if ($status === 'future' && empty($date)) {
             return Response::error('date_required_for_future_posts', 400);
         }
 
+        // Validate date if status is 'publish' and date is in the future
         if ($status === 'publish' && !empty($date) && strtotime($date) > time()) {
             return Response::error('date_for_publish_status_must_be_past', 400);
         }
 
-        if (!$is_update && get_page_by_title($title, OBJECT, 'post')) {
+        // Check for duplicate post title if creating a new post
+        if (!$is_update && $title && get_page_by_title($title, OBJECT, 'post')) {
             return Response::error('post_with_title_exists', 400);
         }
 
@@ -70,17 +69,19 @@ abstract class BasePost {
             $attachment_id = $this->upload_image($image_data['file_path']);
         }
 
+        // Prepare the post data, but only include fields that are provided in the request
         $post_data = [
-            'post_title'   => sanitize_text_field($title),
-            'post_content' => wp_kses_post($content),
-            'post_status'  => $status,
+            'post_title'   => $title ? sanitize_text_field($title) : $post->post_title,
+            'post_content' => $content ? wp_kses_post($content) : $post->post_content,
+            'post_status'  => $status ? $status : $post->post_status,
             'post_date'    => ($status === 'future') ? date('Y-m-d H:i:s', strtotime($date)) : current_time('mysql'),
-            'post_author'  => (int) $author_id,
-            'post_category'=> !empty($categories) ? array_map('intval', $categories) : [],
-            'tags_input'   => !empty($tags) ? array_map('sanitize_text_field', $tags) : [],
+            'post_author'  => $author_id ? (int) $author_id : $post->post_author,
+            'post_category'=> !empty($categories) ? array_map('intval', $categories) : $post->post_category,
+            'tags_input'   => !empty($tags) ? array_map('sanitize_text_field', $tags) : $post->tags_input,
             'meta_input'   => $is_update ? ['updated_by_sm_plugin' => true] : ['added_by_sm_plugin' => true]
         ];
 
+        // If updating, set the post ID
         if ($is_update) {
             $post_data['ID'] = $post_id;
             $result_post_id = wp_update_post($post_data);
@@ -88,10 +89,12 @@ abstract class BasePost {
             $result_post_id = wp_insert_post($post_data);
         }
 
+        // Set the featured image if available
         if ($result_post_id && $attachment_id) {
             set_post_thumbnail($result_post_id, $attachment_id);
         }
 
+        // Return success or failure response
         if ($result_post_id) {
             $post_url = get_permalink($result_post_id);
             return Response::success(
