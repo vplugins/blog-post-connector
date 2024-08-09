@@ -37,9 +37,9 @@ jobs:
       with:
         tag_name: ${{ github.sha }}
         release_name: Release ${{ github.sha }}
+        body: "Release description for ${{ github.sha }}"
         draft: false
         prerelease: false
-        generate_release_notes: true
 
     - name: Upload release ZIP as artifact
       uses: actions/upload-artifact@v3
