@@ -16,10 +16,15 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: Prepare release directory
+      run: |
+        mkdir -p release
+        # Copy all files except the release directory itself
+        rsync -av --exclude='release' ./ release/
+      shell: bash
+
     - name: Create release ZIP
       run: |
-        mkdir release
-        cp -R . release/
         cd release
         zip -r ../${GITHUB_REPOSITORY##*/}-${GITHUB_SHA}.zip .
       shell: bash
