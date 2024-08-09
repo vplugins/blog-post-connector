@@ -22,7 +22,7 @@ class Globals {
     }
 
     public static function get_github_api_url() {
-        return 'https://api.github.com/repos/vplugins/sm-post-connector/releases/latest';  // GitHub API URL for the latest release
+        return 'https://api.github.com/repos/'.self::get_github_user().'/'.self::get_github_repo().'/releases/latest';  // GitHub API URL for the latest release
     }
 
     public static function get_version() {
