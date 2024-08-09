@@ -1,0 +1,52 @@
+name: Create Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: 8.0  # Adjust this version as needed
+        extensions: mbstring, json
+        tools: composer
+
+    - name: Install dependencies
+      run: composer install --no-dev --optimize-autoloader
+
+    - name: Create release ZIP
+      run: |
+        mkdir release
+        cp -R . release/
+        cd release
+        zip -r ../${GITHUB_REPOSITORY##*/}-${GITHUB_SHA}.zip .
+      shell: bash
+
+    - name: Upload release asset
+      uses: actions/upload-artifact@v3
+      with:
+        name: release-zip
+        path: *.zip
+
+    - name: Create GitHub Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.sha }}
+        release_name: Release ${{ github.sha }}
+        draft: false
+        prerelease: false
+        generate_release_notes: true
+        assets: release-zip

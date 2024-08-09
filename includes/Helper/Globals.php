@@ -3,7 +3,27 @@
 namespace VPlugins\SMPostConnector\Helper;
 
 class Globals {
-    const PLUGIN_VERSION = '1.0.0'; 
+    const PLUGIN_VERSION = '0.0.1'; // Current plugin version
+
+    public static function get_plugin_slug() {
+        return 'sm-post-connector';  // Your plugin slug
+    }
+
+    public static function get_plugin_file() {
+        return 'sm-post-connector/sm-post-connector.php';  // Path to the main plugin file
+    }
+
+    public static function get_github_user() {
+        return 'vplugins';  // GitHub organization or username
+    }
+
+    public static function get_github_repo() {
+        return 'sm-post-connector';  // GitHub repository name
+    }
+
+    public static function get_github_api_url() {
+        return 'https://api.github.com/repos/'.self::get_github_user().'/'.self::get_github_repo().'/releases/latest';  // GitHub API URL for the latest release
+    }
 
     public static function get_version() {
         return self::PLUGIN_VERSION;
