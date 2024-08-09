@@ -2,24 +2,19 @@ name: Create Release
 
 on:
   workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'The version number for the release'
+        required: true
+        default: '1.0.0'
 
 jobs:
-  create-release:
+  build:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-
-    - name: Set up PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: 8.0  # Adjust this version as needed
-        extensions: mbstring, json
-        tools: composer
-
-    - name: Install dependencies
-      run: composer install --no-dev --optimize-autoloader
 
     - name: Create release ZIP
       run: |
@@ -28,12 +23,6 @@ jobs:
         cd release
         zip -r ../${GITHUB_REPOSITORY##*/}-${GITHUB_SHA}.zip .
       shell: bash
-
-    - name: Upload release asset
-      uses: actions/upload-artifact@v3
-      with:
-        name: release-zip
-        path: *.zip
 
     - name: Create GitHub Release
       id: create_release
@@ -46,4 +35,12 @@ jobs:
         draft: false
         prerelease: false
         generate_release_notes: true
-        assets: release-zip
+
+    - name: Upload release ZIP as artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: release-zip
+        path: ${GITHUB_REPOSITORY##*/}-${GITHUB_SHA}.zip
+
+    - name: Notify Completion
+      run: echo "Release created and ZIP uploaded successfully."
