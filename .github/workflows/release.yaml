@@ -45,7 +45,7 @@ jobs:
 
     - name: Zip the plugin
       run: |
-        zip -r sm-post-connector-package.zip . -x "*.git*" -x "*.github*" -x "*.yml"
+        zip -r sm-post-connector-package.zip . -x "*.git*" -x "*.github*" -x "*.yml" -x "phpunit.xml" -x "tests/**"
 
     - name: Create Release
       id: create_release
