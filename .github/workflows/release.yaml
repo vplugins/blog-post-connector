@@ -1,7 +1,12 @@
 name: Create Release
 
 on:
-  workflow_dispatch:  # This allows manual triggering of the workflow
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version name for the release'
+        required: true
+        default: '1.0.0'
 
 jobs:
   build:
@@ -20,9 +25,8 @@ jobs:
     - name: Install Composer dependencies
       run: composer install
 
-    - name: Get version from package.json
-      id: get_version
-      run: echo "VERSION=$(node -p -e 'require(\"./package.json\").version')" >> $GITHUB_ENV
+    - name: Get version from user input
+      run: echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
 
     - name: Cleanup unnecessary files
       run: |
