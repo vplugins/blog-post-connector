@@ -4,6 +4,11 @@ namespace VPlugins\SMPostConnector\Updater;
 
 use VPlugins\SMPostConnector\Helper\Globals;
 
+/**
+ * Class Update
+ *
+ * Handles plugin updates by checking for new versions, providing plugin information, and managing post-installation actions.
+ */
 class Update {
 
     private $plugin_slug;
@@ -12,6 +17,12 @@ class Update {
     private $github_repo;
     private $github_api_url;
 
+    /**
+     * Update constructor.
+     *
+     * Initializes the Update class and sets up necessary properties. Adds filters for plugin update checks,
+     * plugin information, and post-installation actions.
+     */
     public function __construct() {
         $this->plugin_slug = Globals::get_plugin_slug();
         $this->plugin_file = Globals::get_plugin_file();
@@ -24,6 +35,12 @@ class Update {
         add_filter('upgrader_post_install', [$this, 'after_install'], 10, 3);
     }
 
+    /**
+     * Checks for updates by comparing the current version with the latest version available on GitHub.
+     *
+     * @param object $transient The transient object containing plugin update information.
+     * @return object The updated transient object with the new version information if available.
+     */
     public function check_for_update($transient) {
         if (empty($transient->checked)) {
             return $transient;
@@ -50,6 +67,14 @@ class Update {
         return $transient;
     }
 
+    /**
+     * Provides plugin information for the plugin details page in the admin area.
+     *
+     * @param object $result The current plugin information result.
+     * @param string $action The action being performed (e.g., 'plugin_information').
+     * @param object $args Arguments passed to the API call.
+     * @return object The updated plugin information.
+     */
     public function plugins_api_handler($result, $action, $args) {
         if ($action !== 'plugin_information' || $args->slug !== $this->plugin_slug) {
             return $result;
@@ -66,6 +91,14 @@ class Update {
         return $response;
     }
 
+    /**
+     * Handles post-installation tasks, such as moving the plugin folder and activating the plugin.
+     *
+     * @param array $response The response from the installation process.
+     * @param array $hook_extra Extra data provided by the upgrader.
+     * @param array $result The result of the installation process.
+     * @return array The updated result array.
+     */
     public function after_install($response, $hook_extra, $result) {
         global $wp_filesystem;
 
@@ -78,6 +111,11 @@ class Update {
         return $result;
     }
 
+    /**
+     * Retrieves the latest plugin version from GitHub.
+     *
+     * @return string|false The latest version number or false if an error occurred.
+     */
     private function get_latest_version() {
         $request = wp_remote_get($this->github_api_url);
         if (is_wp_error($request)) {
@@ -90,6 +128,11 @@ class Update {
         return $data && isset($data->tag_name) ? ltrim($data->tag_name, 'v') : false;
     }
 
+    /**
+     * Retrieves the URL for the latest plugin zip file from GitHub.
+     *
+     * @return string|false The URL of the latest zip file or false if an error occurred.
+     */
     private function get_latest_zip_url() {
         $request = wp_remote_get($this->github_api_url);
         if (is_wp_error($request)) {

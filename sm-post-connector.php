@@ -25,8 +25,18 @@ use VPlugins\SMPostConnector\Endpoints\{
     Status
 };
 
-// Endpoint Registry Class
+/**
+ * Endpoint Registry Class
+ * 
+ * This class is responsible for initializing all endpoints
+ * and setting up the plugin update mechanism.
+ */
 class EndpointRegistry {
+    /**
+     * List of all endpoint classes.
+     *
+     * @var array
+     */
     private static $endpoints = [
         CreatePost::class,
         DeletePost::class,
@@ -37,6 +47,12 @@ class EndpointRegistry {
         Token::class,
     ];
 
+    /**
+     * Initialize all endpoints and the updater.
+     *
+     * This method loops through all endpoints and initializes them.
+     * It also initializes the plugin updater class.
+     */
     public static function initialize() {
         foreach (self::$endpoints as $endpoint) {
             new $endpoint();

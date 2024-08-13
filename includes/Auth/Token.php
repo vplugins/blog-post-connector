@@ -2,24 +2,49 @@
 
 namespace VPlugins\SMPostConnector\Auth;
 
+/**
+ * Class Token
+ *
+ * Handles token generation, validation, and plugin settings page for the SM Post Connector plugin.
+ */
 class Token {
+
+    /**
+     * Token constructor.
+     *
+     * Initializes hooks for admin menu and settings.
+     */
     public function __construct() {
         // Hook into admin menu
         add_action('admin_menu', [$this, 'add_settings_page']);
         add_action('admin_init', [$this, 'register_settings']);
     }
 
+    /**
+     * Generates a new random token and saves it in the database.
+     *
+     * @return string The generated token.
+     */
     public function generate_token() {
         $token = bin2hex(random_bytes(16));
         update_option('sm_post_connector_token', $token);
         return $token;
     }
 
+    /**
+     * Validates a given token against the stored token.
+     *
+     * @param string $token The token to validate.
+     * @return bool True if the token matches the stored token, false otherwise.
+     */
     public function validate_token($token) {
         $saved_token = get_option('sm_post_connector_token');
         return hash_equals($saved_token, $token);
     }
 
+    /**
+     * Adds a settings page to the WordPress admin.
+     */
     public function add_settings_page() {
         add_options_page(
             __('SM Post Connector Settings', 'sm-post-connector'),
@@ -30,6 +55,9 @@ class Token {
         );
     }
 
+    /**
+     * Registers settings for the plugin.
+     */
     public function register_settings() {
         register_setting('sm_post_connector_settings', 'sm_post_connector_token');
         register_setting('sm_post_connector_settings', 'sm_post_connector_default_post_type');
@@ -83,6 +111,9 @@ class Token {
         );
     }
 
+    /**
+     * Renders the settings page for the plugin.
+     */
     public function render_settings_page() {
         $active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'token';
         ?>
@@ -101,20 +132,23 @@ class Token {
                     settings_fields('sm_post_connector_settings');
                     do_settings_sections('sm-post-connector-post');
                 }
-                submit_button( __( 'Save Changes', 'sm-post-connector' ), 'primary' );
+                submit_button(__('Save Changes', 'sm-post-connector'), 'primary');
                 ?>
             </form>
             <?php if ($active_tab == 'token'): ?>
-            <form method="post">
-                <input type="hidden" name="generate_new_token" value="1">
-                <?php submit_button( __('Generate New Token', 'sm-post-connector'), 'secondary' ); ?>
-            </form>
-            <?php $this->handle_generate_token_request(); ?>
+                <form method="post">
+                    <input type="hidden" name="generate_new_token" value="1">
+                    <?php submit_button(__('Generate New Token', 'sm-post-connector'), 'secondary'); ?>
+                </form>
+                <?php $this->handle_generate_token_request(); ?>
             <?php endif; ?>
         </div>
         <?php
     }
 
+    /**
+     * Renders the field for the access token.
+     */
     public function render_token_field() {
         $token = get_option('sm_post_connector_token', '');
         if (empty($token)) {
@@ -125,27 +159,30 @@ class Token {
             <input type="text" id="sm_post_connector_token" class="regular-text" name="sm_post_connector_token" value="<?php echo esc_attr($token); ?>" readonly>
             <button type="button" class="button button-secondary" onclick="copyTokenToClipboard()">Copy Token</button>
         </div>
-        <div id="tokenSnackbar" class="components-snackbar  " style="display: none;">
+        <div id="tokenSnackbar" class="components-snackbar" style="display: none;">
             Token copied to clipboard!
         </div>
         <script>
-        function copyTokenToClipboard() {
-            var copyText = document.getElementById("sm_post_connector_token");
-            copyText.select();
-            copyText.setSelectionRange(0, 99999); /* For mobile devices */
-            document.execCommand("copy");
-    
-            // Show snackbar
-            var snackbar = document.getElementById("tokenSnackbar");
-            snackbar.style.display = "block";
-            setTimeout(function(){
-                snackbar.style.display = "none";
-            }, 3000); // Hide snackbar after 3 seconds
-        }
+            function copyTokenToClipboard() {
+                var copyText = document.getElementById("sm_post_connector_token");
+                copyText.select();
+                copyText.setSelectionRange(0, 99999); /* For mobile devices */
+                document.execCommand("copy");
+
+                // Show snackbar
+                var snackbar = document.getElementById("tokenSnackbar");
+                snackbar.style.display = "block";
+                setTimeout(function() {
+                    snackbar.style.display = "none";
+                }, 3000); // Hide snackbar after 3 seconds
+            }
         </script>
         <?php
-    }     
+    }
 
+    /**
+     * Renders the field for selecting the default post type.
+     */
     public function render_post_type_field() {
         $post_types = get_post_types(['public' => true], 'objects');
         $default_post_type = get_option('sm_post_connector_default_post_type', '');
@@ -161,6 +198,9 @@ class Token {
         <?php
     }
 
+    /**
+     * Renders the field for selecting the default author.
+     */
     public function render_author_field() {
         $authors = get_users(['who' => 'authors']);
         $default_author = get_option('sm_post_connector_default_author', '');
@@ -176,8 +216,11 @@ class Token {
         <?php
     }
 
+    /**
+     * Renders the field for selecting the default category.
+     */
     public function render_category_field() {
-        $categories = get_categories(['hide_empty' => false,]);
+        $categories = get_categories(['hide_empty' => false]);
         $default_category = get_option('sm_post_connector_default_category', '');
 
         ?>
@@ -191,6 +234,9 @@ class Token {
         <?php
     }
 
+    /**
+     * Handles the request to generate a new token.
+     */
     private function handle_generate_token_request() {
         if (isset($_POST['generate_new_token'])) {
             $new_token = $this->generate_token();
