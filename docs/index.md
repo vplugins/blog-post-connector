@@ -23,7 +23,7 @@ To install the SM Post Connector plugin, follow these steps:
 ## Configuration
 After installation, configure the plugin settings:
 1. Navigate to the plugin settings page in your WordPress dashboard.
-2. Set your API keys, token settings, and other configurations as per your requirements.
+2. Set your API token settings, and other configurations as per your requirements.
 ## API Endpoints
 The SM Post Connector plugin provides the following API endpoints:
 -  **Create Post**: Allows you to create a new post. [View Details](create-post.md)
