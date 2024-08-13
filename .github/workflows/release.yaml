@@ -7,14 +7,7 @@ on:
         description: 'Version name for the release'
         required: true
         default: '1.0.0'
-  push:
-    branches:
-      - main
-    paths-ignore:
-      - '**.md'
-    types: 
-      - merged
-
+        
 jobs:
   build:
     runs-on: ubuntu-latest
