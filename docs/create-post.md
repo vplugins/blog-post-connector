@@ -1,13 +1,16 @@
-# `/create-post` Endpoint
+# `/create-post` 
+
 The `/create-post` endpoint is used to create a new post with the specified title, content, status, and author.
 
 ## Endpoint
+
 - **URL**: `/wp-json/sm-connect/v1/create-post`
 - **Method**: `POST`
 - **Authentication**: Bearer Token
 - **Content-Type**: `application/json`
 
 ## Request
+
 To create a new post, make a `POST` request with the required parameters included in the query string. You must also include an `Authorization` header with a valid Bearer token.
 
 ### Request Headers
@@ -27,12 +30,13 @@ To create a new post, make a `POST` request with the required parameters include
 | featured_image    | string | URL of the new featured image for the post.  |
 
 ### Example 
+
 ```javascript
 $http({
     method: 'POST',
     url: 'http://sm-post-connector.local/wp-json/sm-connect/v1/create-post',
     headers: {
-        'Authorization': 'Bearer 57e530e516f690213e645cc75fa1abde',
+        'Authorization': 'Bearer <your_access_token>',
         'Content-Type': 'application/json'
     },
     data: {
