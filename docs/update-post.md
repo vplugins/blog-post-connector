@@ -36,7 +36,7 @@ To update a post, make a `POST` request with the required parameters included in
 ```javascript
 $http({
     method: 'POST',
-    url: 'http://sm-post-connector.local/wp-json/sm-connect/v1/update-post',
+    url: 'SITE_URL/wp-json/sm-connect/v1/update-post',
     headers: {
         'Authorization': 'Bearer <your_access_token>',
         'Content-Type': 'application/json'

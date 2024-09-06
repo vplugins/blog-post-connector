@@ -34,7 +34,7 @@ To create a new post, make a `POST` request with the required parameters include
 ```javascript
 $http({
     method: 'POST',
-    url: 'http://sm-post-connector.local/wp-json/sm-connect/v1/create-post',
+    url: 'SITE_URL/wp-json/sm-connect/v1/create-post',
     headers: {
         'Authorization': 'Bearer <your_access_token>',
         'Content-Type': 'application/json'

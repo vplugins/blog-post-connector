@@ -51,7 +51,7 @@ When the request is successful, the response will be:
 ```javascript
 $http({
     method: 'GET',
-    url: 'http://sm-post-connector.local/wp-json/sm-connect/v1/authors',
+    url: 'SITE_URL/wp-json/sm-connect/v1/authors',
     headers: {
         'Authorization': 'Bearer <your_access_token>'
     }

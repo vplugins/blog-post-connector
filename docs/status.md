@@ -25,7 +25,7 @@ Here’s an example of how to make a request to the `/status` endpoint using Ang
 ```javascript
 $http({
     method: 'GET',
-    url: 'http://sm-post-connector.local/wp-json/sm-connect/v1/status',
+    url: 'SITE_URL/wp-json/sm-connect/v1/status',
     headers: {
         'Authorization': 'Bearer 57e530e516f690213e645cc75fa1abde' // Replace with your actual token
     }

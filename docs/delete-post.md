@@ -30,7 +30,7 @@ To delete a post, make a `DELETE` request with the required parameters included 
 ```javascript
 $http({
     method: 'DELETE',
-    url: 'http://sm-post-connector.local/wp-json/sm-connect/v1/delete-post',
+    url: 'SITE_URL/wp-json/sm-connect/v1/delete-post',
     headers: {
         'Authorization': 'Bearer <your_access_token>',
         'Content-Type': 'application/json'
