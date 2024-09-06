@@ -6,14 +6,35 @@ use WP_REST_Request;
 use VPlugins\SMPostConnector\Middleware\AuthMiddleware;
 use VPlugins\SMPostConnector\Helper\Response;
 
+/**
+ * Class DeletePost
+ *
+ * Registers a REST API endpoint for deleting posts.
+ *
+ * @package VPlugins\SMPostConnector\Endpoints
+ */
 class DeletePost {
+    /**
+     * @var AuthMiddleware
+     */
     protected $auth_middleware;
 
+    /**
+     * DeletePost constructor.
+     *
+     * Initializes the AuthMiddleware instance and registers the REST API routes.
+     */
     public function __construct() {
         $this->auth_middleware = new AuthMiddleware();
         add_action('rest_api_init', [$this, 'register_routes']);
     }
 
+    /**
+     * Registers the REST API routes for the DeletePost endpoint.
+     *
+     * Adds a route for deleting posts using a DELETE request.
+     * The route is registered under the namespace 'sm-connect/v1' and the endpoint '/delete-post'.
+     */
     public function register_routes() {
         register_rest_route('sm-connect/v1', '/delete-post', [
             'methods' => 'DELETE',
@@ -22,6 +43,15 @@ class DeletePost {
         ]);
     }
 
+    /**
+     * Handles the request to delete a post.
+     *
+     * Deletes a post based on the provided ID. The post can either be moved to trash or permanently deleted.
+     *
+     * @param WP_REST_Request $request The request object containing the parameters for deleting the post.
+     * 
+     * @return \WP_REST_Response The response object containing the result of the delete operation.
+     */
     public function delete_post(WP_REST_Request $request) {
         $post_id = $request->get_param('id');
         $trash = $request->get_param('trash');

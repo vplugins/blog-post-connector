@@ -6,16 +6,42 @@ use WP_REST_Response;
 use VPlugins\SMPostConnector\Middleware\AuthMiddleware;
 use VPlugins\SMPostConnector\Helper\Response;
 
+/**
+ * Abstract class BasePost
+ * 
+ * Provides functionality for creating and updating WordPress posts via REST API endpoints.
+ * Extend this class to implement specific post type handling.
+ */
 abstract class BasePost {
+    /**
+     * @var AuthMiddleware Instance of AuthMiddleware for handling authentication.
+     */
     protected $auth_middleware;
 
+    /**
+     * Constructor
+     * 
+     * Initializes the authentication middleware and registers the REST API routes.
+     */
     public function __construct() {
         $this->auth_middleware = new AuthMiddleware();
         add_action('rest_api_init', [$this, 'register_routes']);
     }
 
+    /**
+     * Registers REST API routes
+     * 
+     * To be implemented by subclasses.
+     */
     abstract public function register_routes();
 
+    /**
+     * Handles post creation or updating.
+     * 
+     * @param WP_REST_Request $request The incoming REST API request.
+     * @param bool $is_update Indicates if the request is to update an existing post.
+     * @return WP_REST_Response The response indicating success or failure.
+     */
     protected function handle_post_request(WP_REST_Request $request, $is_update = false) {
         $post_id = $is_update ? $request->get_param('id') : null;
 
@@ -106,6 +132,12 @@ abstract class BasePost {
         return Response::error($is_update ? 'failed_to_update_post' : 'failed_to_create_post', 500);
     }
 
+    /**
+     * Downloads an image from the given URL.
+     * 
+     * @param string $image_url The URL of the image to download.
+     * @return array An array containing the status and file path or error message.
+     */
     protected function download_image($image_url) {
         $response = wp_remote_get($image_url);
         if (is_wp_error($response) || wp_remote_retrieve_response_code($response) !== 200) {
@@ -118,6 +150,12 @@ abstract class BasePost {
         return ['status' => 'success', 'file_path' => $file_path];
     }
 
+    /**
+     * Uploads an image to the WordPress media library.
+     * 
+     * @param string $file_path The local file path of the image.
+     * @return int The attachment ID of the uploaded image.
+     */
     protected function upload_image($file_path) {
         $wp_filetype = wp_check_filetype(basename($file_path), null);
         $attachment = [
