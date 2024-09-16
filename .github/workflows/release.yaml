@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version name for the release'
+        description: 'Version name for the release (e.g., 1.0.0)'
         required: true
         default: '1.0.0'
-        
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -26,7 +26,13 @@ jobs:
       run: composer install --no-dev
 
     - name: Get version from user input
-      run: echo "VERSION=${{ github.event.inputs.version || '1.0.0' }}" >> $GITHUB_ENV
+      run: |
+        VERSION=${{ github.event.inputs.version }}
+        # Ensure that the version is prefixed with "v" for a valid tag name
+        if [[ $VERSION != v* ]]; then
+          VERSION="v${VERSION}"
+        fi
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
 
     - name: Cleanup unnecessary files
       run: |
@@ -42,9 +48,9 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
       with:
-        tag_name: v${{ env.VERSION }}
-        release_name: SM Plugin v${{ env.VERSION }}
-        body: "Initial release of the SM Plugin plugin."
+        tag_name: ${{ env.VERSION }}  # Use the validated version tag
+        release_name: SM Plugin ${{ env.VERSION }}
+        body: "Release of SM Post Connector plugin version ${{ env.VERSION }}."
         draft: false
         prerelease: false
 
