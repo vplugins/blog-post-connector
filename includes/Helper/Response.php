@@ -159,7 +159,7 @@ class Response {
      * @return WP_REST_Response The response object with a 500 status code.
      */
     public static function error($key = '') {
-        $message = Globals::get_success_message('error');
+        $message = Globals::get_success_message($key);
         return self::create_response(500, $message);
     }
 }
