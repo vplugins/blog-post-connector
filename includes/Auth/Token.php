@@ -303,14 +303,12 @@ class Token {
     /**
      * Handles generating a new token on request.
      */
-    public function handle_generate_token_request() {
+    private function handle_generate_token_request() {
         if (isset($_POST['generate_new_token'])) {
             $new_token = $this->generate_token();
-            ?>
-            <div class="notice notice-success is-dismissible">
-                <p><?php echo sprintf(__('New token generated: %s', 'sm-post-connector'), esc_html($new_token)); ?></p>
-            </div>
-            <?php
+            update_option('sm_post_connector_token', $new_token);
+            // Reload the page to reflect the new token in the text box
+            echo '<script>window.location.reload();</script>';
         }
-    }
-}
+    }  
+} 
