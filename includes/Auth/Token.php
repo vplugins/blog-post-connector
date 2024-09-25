@@ -310,5 +310,5 @@ class Token {
             // Reload the page to reflect the new token in the text box
             echo '<script>window.location.reload();</script>';
         }
-    }  
-} 
+    }
+}
