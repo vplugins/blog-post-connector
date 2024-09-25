@@ -18,6 +18,7 @@ class Token {
         // Hook into admin menu
         add_action('admin_menu', [$this, 'add_settings_page']);
         add_action('admin_init', [$this, 'register_settings']);
+        add_action('admin_enqueue_scripts', [$this, 'enqueue_media_uploader']);
     }
 
     /**
@@ -56,6 +57,16 @@ class Token {
     }
 
     /**
+     * Enqueue media uploader script
+     */
+    public function enqueue_media_uploader($hook) {
+        if ($hook !== 'settings_page_sm-post-connector') {
+            return;
+        }
+        wp_enqueue_media(); // Enqueue media uploader script
+    }
+
+    /**
      * Registers settings for the plugin.
      */
     public function register_settings() {
@@ -63,6 +74,7 @@ class Token {
         register_setting('sm_post_connector_settings', 'sm_post_connector_default_post_type');
         register_setting('sm_post_connector_settings', 'sm_post_connector_default_author');
         register_setting('sm_post_connector_settings', 'sm_post_connector_default_category');
+        register_setting('sm_post_connector_settings', 'sm_post_connector_logo');
 
         add_settings_section(
             'sm_post_connector_settings_section_token',
@@ -106,6 +118,14 @@ class Token {
             'sm_post_connector_default_category',
             __('Default Category', 'sm-post-connector'),
             [$this, 'render_category_field'],
+            'sm-post-connector-post',
+            'sm_post_connector_settings_section_post'
+        );
+
+        add_settings_field(
+            'sm_post_connector_logo',
+            __('Site Logo', 'sm-post-connector'),
+            [$this, 'render_logo_field'],
             'sm-post-connector-post',
             'sm_post_connector_settings_section_post'
         );
@@ -235,14 +255,62 @@ class Token {
     }
 
     /**
-     * Handles the request to generate a new token.
+     * Renders the logo upload field.
      */
-    private function handle_generate_token_request() {
+    public function render_logo_field() {
+        $logo = get_option('sm_post_connector_logo'); // Retrieve the logo option
+        ?>
+        <input type="hidden" id="sm_post_connector_logo" name="sm_post_connector_logo" value="<?php echo esc_attr($logo); ?>" />
+        <button type="button" class="button" id="sm_post_connector_upload_logo" style="margin-bottom: 10px !important;"><?php _e('Upload Logo', 'sm-post-connector'); ?></button>
+        <div id="sm_post_connector_logo_preview">
+            <?php if ($logo): ?>
+                <img src="<?php echo esc_url($logo); ?>" style="max-width: 150px; max-height: 150px;">
+            <?php endif; ?>
+        </div>
+        <script>
+            jQuery(document).ready(function($) {
+                var mediaUploader;
+
+                $('#sm_post_connector_upload_logo').click(function(e) {
+                    e.preventDefault();
+
+                    if (mediaUploader) {
+                        mediaUploader.open();
+                        return;
+                    }
+
+                    mediaUploader = wp.media.frames.file_frame = wp.media({
+                        title: '<?php _e('Select Logo', 'sm-post-connector'); ?>',
+                        button: {
+                            text: '<?php _e('Select Logo', 'sm-post-connector'); ?>'
+                        },
+                        multiple: false
+                    });
+
+                    mediaUploader.on('select', function() {
+                        var attachment = mediaUploader.state().get('selection').first().toJSON();
+                        $('#sm_post_connector_logo').val(attachment.url);
+                        $('#sm_post_connector_logo_preview').html('<img src="' + attachment.url + '" style="max-width: 150px; max-height: 150px;">');
+                    });
+
+                    mediaUploader.open();
+                });
+            });
+        </script>
+        <?php
+    }
+
+    /**
+     * Handles generating a new token on request.
+     */
+    public function handle_generate_token_request() {
         if (isset($_POST['generate_new_token'])) {
             $new_token = $this->generate_token();
-            update_option('sm_post_connector_token', $new_token);
-            // Reload the page to reflect the new token in the text box
-            echo '<script>window.location.reload();</script>';
+            ?>
+            <div class="notice notice-success is-dismissible">
+                <p><?php echo sprintf(__('New token generated: %s', 'sm-post-connector'), esc_html($new_token)); ?></p>
+            </div>
+            <?php
         }
     }
 }
