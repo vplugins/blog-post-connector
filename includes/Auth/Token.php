@@ -70,7 +70,7 @@ class Token {
      * Registers settings for the plugin.
      */
     public function register_settings() {
-        register_setting('sm_post_connector_settings', 'sm_post_connector_token');
+        register_setting('sm_post_connector_settings_token', 'sm_post_connector_token');
         register_setting('sm_post_connector_settings', 'sm_post_connector_default_post_type');
         register_setting('sm_post_connector_settings', 'sm_post_connector_default_author');
         register_setting('sm_post_connector_settings', 'sm_post_connector_default_category');
@@ -146,7 +146,7 @@ class Token {
             <form method="post" action="options.php">
                 <?php
                 if ($active_tab == 'token') {
-                    settings_fields('sm_post_connector_settings');
+                    settings_fields('sm_post_connector_settings_token');
                     do_settings_sections('sm-post-connector-token');
                 } else {
                     settings_fields('sm_post_connector_settings');
