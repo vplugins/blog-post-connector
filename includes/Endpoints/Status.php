@@ -54,8 +54,11 @@ class Status {
      * @return \WP_REST_Response The response object containing the plugin version and a success message.
      */
     public function get_status(WP_REST_Request $request) {
-        // Plugin version
-        $plugin_version = Globals::get_version(); // Replace with actual plugin version or static value like '1.0.0'
+        // Current plugin version
+        $current_version = Globals::get_version(); // Replace with actual plugin version or static value like '1.0.0'
+
+        // Get the latest version from GitHub
+        $latest_version = $this->fetch_latest_version_from_github();
         
         // Site details
         $site_name = get_bloginfo('name');
@@ -73,12 +76,15 @@ class Status {
         }
     
         $data = [
-            'plugin_version' => $plugin_version,
             'site_details' => [
                 'name' => $site_name,
                 'description' => $site_description,
                 'logo' => $logo_url,
                 'version' => $site_version,
+                'plugin_version' => [
+                    'current' => $current_version,
+                    'latest' => $latest_version,
+                ],
             ],
         ];
     
@@ -87,5 +93,30 @@ class Status {
         // Use the Response helper for a standard format
         return Response::success($success_message, $data);
     }
-    
+
+    /**
+     * Fetches the latest version of the plugin from the GitHub repository.
+     *
+     * @return string|null The latest version tag or null if unable to retrieve.
+     */
+    protected function fetch_latest_version_from_github() {
+        $repo_owner = 'manishsubachchanyadav'; // Replace with your GitHub username
+        $repo_name = 'sm-post-connector';         // Replace with your repository name
+        $url = "https://api.github.com/repos/vplugins/sm-post-connector/releases/latest";
+
+        $response = wp_remote_get($url, [
+            'headers' => [
+                'User-Agent' => 'WordPress/' . get_bloginfo('version'),
+            ]
+        ]);
+
+        if (is_wp_error($response)) {
+            return null; // Handle error appropriately
+        }
+
+        $body = wp_remote_retrieve_body($response);
+        $data = json_decode($body, true);
+
+        return isset($data['tag_name']) ? $data['tag_name'] : null;
+    }
 }
