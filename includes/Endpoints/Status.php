@@ -100,8 +100,8 @@ class Status {
      * @return string|null The latest version tag or null if unable to retrieve.
      */
     protected function fetch_latest_version_from_github() {
-        // GitHub URL for the specific repository
-        $url = "https://api.github.com/repos/vplugins/sm-post-connector/releases/latest";
+        // Use the Globals class to dynamically get the GitHub API URL
+        $url = Globals::get_github_api_url();
 
         $response = wp_remote_get($url, [
             'headers' => [
