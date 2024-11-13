@@ -100,8 +100,7 @@ class Status {
      * @return string|null The latest version tag or null if unable to retrieve.
      */
     protected function fetch_latest_version_from_github() {
-        $repo_owner = 'manishsubachchanyadav'; // Replace with your GitHub username
-        $repo_name = 'sm-post-connector';         // Replace with your repository name
+        // GitHub URL for the specific repository
         $url = "https://api.github.com/repos/vplugins/sm-post-connector/releases/latest";
 
         $response = wp_remote_get($url, [
