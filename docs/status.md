@@ -47,12 +47,15 @@ $http({
     "status": 200,
     "message": "Operation successful",
     "data": {
-        "plugin_version": "0.0.1",
         "site_details": {
             "name": "Marketing Agency",
             "description": "We provide SEO, PPC, social media, web design and more.",
             "logo": "http://social-post-integration.local/wp-content/uploads/2024/09/123menlife_logo.png",
-            "version": "6.6.2"
+            "version": "6.6.2",
+            "plugin_version": {
+                "current": "0.0.1",
+                "latest": "v0.0.2Beta"
+            }
         }
     }
 }
