@@ -80,6 +80,17 @@ class Globals {
     }
 
     /**
+     * Retrieves a list of all tags.
+     *
+     * @return array An array of tag objects.
+     */
+    public static function get_tags() {
+        return get_tags([
+            'hide_empty' => false
+        ]);
+    }
+
+    /**
      * Retrieves a list of users with specific roles.
      *
      * @return array An array of user objects.
