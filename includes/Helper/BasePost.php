@@ -65,6 +65,17 @@ abstract class BasePost {
         $tags = $request->get_param('tag');
         $featured_image_url = $request->get_param('featured_image');
 
+        // Convert comma-separated strings to arrays, trim spaces, and remove empty values
+        $categories_array = !empty($categories) ? array_map('intval', array_filter(array_map('trim', explode(',', $categories)))) : [];
+        $tags_array = !empty($tags) ? array_map('sanitize_text_field', array_filter(array_map('trim', explode(',', $tags)))) : [];
+
+        // Set default category if no categories are provided
+        if (empty($categories_array)) {
+            // Retrieve the default category from settings, or set a fallback category
+            $default_category = get_option('sm_post_connector_default_category', 1); // Default to category ID 1 if not set
+            $categories_array = [$default_category];
+        }
+
         // Validate status if provided
         $valid_statuses = ['publish', 'future', 'draft'];
         if ($status && !in_array($status, $valid_statuses)) {
@@ -102,8 +113,8 @@ abstract class BasePost {
             'post_status'  => $status ? $status : $post->post_status,
             'post_date'    => ($status === 'future') ? date('Y-m-d H:i:s', strtotime($date)) : current_time('mysql'),
             'post_author'  => $author_id ? (int) $author_id : $post->post_author,
-            'post_category'=> !empty($categories) ? array_map('intval', $categories) : $post->post_category,
-            'tags_input'   => !empty($tags) ? array_map('sanitize_text_field', $tags) : $post->tags_input,
+            'post_category'=> $categories_array,
+            'tags_input'   => $tags_array,
             'meta_input'   => $is_update ? ['updated_by_sm_plugin' => true] : ['added_by_sm_plugin' => true]
         ];
 
