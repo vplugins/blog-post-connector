@@ -117,6 +117,7 @@ class Globals {
             'post_updated' => __('Post updated successfully', 'sm-post-connector'),
             'post_deleted' => __('Post deleted successfully', 'sm-post-connector'),
             'categories_retrieved' => __('Categories retrieved successfully', 'sm-post-connector'),
+            'tags_retrieved' => __('Tags retrieved successfully', 'sm-post-connector'),
             'authors_retrieved' => __('Authors retrieved successfully', 'sm-post-connector'),
             'invalid_author_id' => __('Invalid author ID', 'sm-post-connector'),
             'post_id_required' => __('Post ID is required', 'sm-post-connector'),
