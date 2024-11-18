@@ -70,10 +70,17 @@ abstract class BasePost {
         $tags_array = !empty($tags) ? array_map('sanitize_text_field', array_filter(array_map('trim', explode(',', $tags)))) : [];
 
         // Set default category if no categories are provided
-        if (empty($categories_array)) {
+        if (empty($categories_array) && !$is_update) {
             // Retrieve the default category from settings, or set a fallback category
-            $default_category = get_option('sm_post_connector_default_category', 1); // Default to category ID 1 if not set
-            $categories_array = [$default_category];
+            if (!$is_update) {
+                $default_category = get_option('sm_post_connector_default_category', 1); // Default to category ID 1 if not set
+                $categories_array = [$default_category];
+            }
+        }
+
+        if (empty($author_id) && !$is_update) {
+            $default_author = get_option('sm_post_connector_default_author', 1); // Default to author ID 1 if not set
+            $author_id = $default_author;
         }
 
         // Validate status if provided
@@ -97,6 +104,11 @@ abstract class BasePost {
             return Response::error('post_with_title_exists', 400);
         }
 
+        // Check if the author ID exists if provided
+        if (!get_user_by('ID', $author_id)) {
+            return Response::error('invalid_author_id', 400);
+        }
+
         $attachment_id = 0;
         if (!empty($featured_image_url)) {
             $image_data = $this->download_image($featured_image_url);
@@ -112,7 +124,7 @@ abstract class BasePost {
             'post_content' => $content ? wp_kses_post($content) : $post->post_content,
             'post_status'  => $status ? $status : $post->post_status,
             'post_date'    => ($status === 'future') ? date('Y-m-d H:i:s', strtotime($date)) : current_time('mysql'),
-            'post_author'  => $author_id ? (int) $author_id : $post->post_author,
+            'post_author'  => $author_id,
             'post_category'=> $categories_array,
             'tags_input'   => $tags_array,
             'meta_input'   => $is_update ? ['updated_by_sm_plugin' => true] : ['added_by_sm_plugin' => true]

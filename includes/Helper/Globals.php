@@ -118,6 +118,7 @@ class Globals {
             'post_deleted' => __('Post deleted successfully', 'sm-post-connector'),
             'categories_retrieved' => __('Categories retrieved successfully', 'sm-post-connector'),
             'authors_retrieved' => __('Authors retrieved successfully', 'sm-post-connector'),
+            'invalid_author_id' => __('Invalid author ID', 'sm-post-connector'),
             'post_id_required' => __('Post ID is required', 'sm-post-connector'),
             'post_not_found' => __('Post not found', 'sm-post-connector'),
             'post_moved_to_trash' => __('Post moved to trash successfully', 'sm-post-connector'),
