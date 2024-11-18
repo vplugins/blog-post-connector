@@ -135,6 +135,6 @@ class Globals {
             'error' => __('An error occurred', 'sm-post-connector')
         ];
 
-        return $messages[$key] ?? __('Operation successful', 'sm-post-connector');
+        return $messages[$key] ?? __( $key , 'sm-post-connector');
     }
 }
