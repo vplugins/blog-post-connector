@@ -112,7 +112,7 @@ class Globals {
      */
     public static function get_success_message($key) {
         $messages = [
-            'status_retrieved' => __('Version information retrieved successfully', 'sm-post-connector'),
+            'status_retrieved' => __('Status information retrieved successfully', 'sm-post-connector'),
             'post_created' => __('Post created successfully', 'sm-post-connector'),
             'post_updated' => __('Post updated successfully', 'sm-post-connector'),
             'post_deleted' => __('Post deleted successfully', 'sm-post-connector'),
