@@ -88,7 +88,7 @@ class Status {
             ],
         ];
     
-        $success_message = 'Status retrieved successfully.'; // Custom message
+        $success_message = 'status_retrieved';
     
         // Use the Response helper for a standard format
         return Response::success($success_message, $data);

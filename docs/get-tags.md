@@ -1,9 +1,9 @@
-# `/categories` 
-The `/categories` endpoint retrieves a list of category IDs.
+# `/tags` 
+The `/tags` endpoint retrieves a list of tags
 
 ## Endpoint
 
-- **URL**: `/wp-json/sm-connect/v1/categories`
+- **URL**: `/wp-json/sm-connect/v1/tags`
 - **Method**: `GET`
 - **Authentication**: Bearer Token
 
@@ -19,7 +19,7 @@ To access this endpoint, make a `GET` request and include an `Authorization` hea
 
 ## Response
 
-The response will provide details about the categories.
+The response will provide details about the tags.
 
 ### Success Response
 
@@ -29,7 +29,7 @@ When the request is successful, the response will be:
     "status": 200,
     "message": "Operation successful",
     "data": {
-        "categories": {
+        "tags": {
             "1": {
                 "name": "Test Category",
                 "id": 2,
@@ -50,12 +50,12 @@ When the request is successful, the response will be:
 ```javascript
 $http({
     method: 'GET',
-    url: 'SITE_URL/wp-json/sm-connect/v1/categories',
+    url: 'SITE_URL/wp-json/sm-connect/v1/tags',
     headers: {
         'Authorization': 'Bearer <your_access_token>'
     }
 }).then(function successCallback(response) {
-    console.log('Categories:', response.data.data.categories);
+    console.log('tags:', response.data.data.tags);
 }, function errorCallback(response) {
     console.error('Error:', response.data.message);
 });

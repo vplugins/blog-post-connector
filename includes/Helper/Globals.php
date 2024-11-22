@@ -80,6 +80,17 @@ class Globals {
     }
 
     /**
+     * Retrieves a list of all tags.
+     *
+     * @return array An array of tag objects.
+     */
+    public static function get_tags() {
+        return get_tags([
+            'hide_empty' => false
+        ]);
+    }
+
+    /**
      * Retrieves a list of users with specific roles.
      *
      * @return array An array of user objects.
@@ -101,12 +112,14 @@ class Globals {
      */
     public static function get_success_message($key) {
         $messages = [
-            'status_retrieved' => __('Version information retrieved successfully', 'sm-post-connector'),
+            'status_retrieved' => __('Status information retrieved successfully', 'sm-post-connector'),
             'post_created' => __('Post created successfully', 'sm-post-connector'),
             'post_updated' => __('Post updated successfully', 'sm-post-connector'),
             'post_deleted' => __('Post deleted successfully', 'sm-post-connector'),
             'categories_retrieved' => __('Categories retrieved successfully', 'sm-post-connector'),
+            'tags_retrieved' => __('Tags retrieved successfully', 'sm-post-connector'),
             'authors_retrieved' => __('Authors retrieved successfully', 'sm-post-connector'),
+            'invalid_author_id' => __('Invalid author ID', 'sm-post-connector'),
             'post_id_required' => __('Post ID is required', 'sm-post-connector'),
             'post_not_found' => __('Post not found', 'sm-post-connector'),
             'post_moved_to_trash' => __('Post moved to trash successfully', 'sm-post-connector'),
@@ -124,6 +137,6 @@ class Globals {
             'error' => __('An error occurred', 'sm-post-connector')
         ];
 
-        return $messages[$key] ?? __('Operation successful', 'sm-post-connector');
+        return $messages[$key] ?? __( $key , 'sm-post-connector');
     }
 }
