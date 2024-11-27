@@ -28,8 +28,6 @@ To create a new post, make a `POST` request with the required parameters include
 | status            | string | The status of the post (e.g., `publish`).    |
 | author            | int    | The ID of the author of the post.            |
 | featured_image    | string | URL of the new featured image for the post.  |
-| category          | string | Comma-separated list of category IDs.        |
-| tag               | string | Comma-separated list of tags.                |
 
 ### Example 
 
@@ -45,9 +43,7 @@ $http({
         title: 'Sample Title',
         content: 'Sample content',
         status: 'publish',
-        author: 1,
-        category: '2,5', 
-        tag: 'WordPress,API' 
+        author: 1
     }
 }).then(function successCallback(response) {
     console.log('Post created:', response.data.data);

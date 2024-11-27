@@ -30,7 +30,7 @@ class Update {
         $this->github_repo = Globals::get_github_repo();
         $this->github_api_url = Globals::get_github_api_url();
 
-        add_filter('pre_set_site_transient_update_plugins', [$this, 'check_for_update']);
+        add_filter('pre_set_site_transient_update_plugins', [$this, 'check_for_update'], 10, 1);
         add_filter('plugins_api', [$this, 'plugins_api_handler'], 10, 3);
         add_filter('upgrader_post_install', [$this, 'after_install'], 10, 3);
     }
@@ -142,6 +142,9 @@ class Update {
         $body = wp_remote_retrieve_body($request);
         $data = json_decode($body);
 
-        return $data && isset($data->zipball_url) ? $data->zipball_url : false;
+        $latest_asset = $data->assets;
+        $latest_zip = $latest_asset[0]->browser_download_url;
+
+        return $data && isset($latest_zip) ? $latest_zip : false;
     }
 }

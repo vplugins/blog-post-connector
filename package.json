@@ -1,6 +1,6 @@
 {
     "name": "sm-post-connector",
-    "version": "1.0.0",
+    "version": "0.0.2",
     "description": "A plugin to connect WordPress with the Social Marketing tool.",
     "author": "Website Pro WordPress Team",
     "scripts": {

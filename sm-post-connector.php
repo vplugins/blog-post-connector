@@ -2,7 +2,7 @@
 /**
  * Plugin Name: SM Post Connector
  * Description: A plugin to connect WordPress with the Social Marketing tool.
- * Version: 0.0.1
+ * Version: 0.0.2
  * Author: Website Pro WordPress Team
  * Text Domain: sm-post-connector
  */
@@ -16,10 +16,12 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 use VPlugins\SMPostConnector\Auth\Token;
 use VPlugins\SMPostConnector\Updater\Update;
+use VPlugins\SMPostConnector\Webhook\Webhook;
 use VPlugins\SMPostConnector\Endpoints\{
     CreatePost,
     DeletePost,
     UpdatePost,
+    GetPost,
     GetAuthors,
     GetCategories,
     GetTags,
@@ -46,7 +48,8 @@ class EndpointRegistry {
         GetCategories::class,
         Status::class,
         Token::class,
-        GetTags::class
+        GetTags::class,
+        GetPost::class
     ];
 
     /**
@@ -60,6 +63,7 @@ class EndpointRegistry {
             new $endpoint();
         }
         new Update();
+        new Webhook();
     }
 }
 
