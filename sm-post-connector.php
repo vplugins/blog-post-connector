@@ -16,6 +16,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 use VPlugins\SMPostConnector\Auth\Token;
 use VPlugins\SMPostConnector\Updater\Update;
+use VPlugins\SMPostConnector\Webhook\Webhook;
 use VPlugins\SMPostConnector\Endpoints\{
     CreatePost,
     DeletePost,
@@ -60,6 +61,7 @@ class EndpointRegistry {
             new $endpoint();
         }
         new Update();
+        new Webhook();
     }
 }
 
