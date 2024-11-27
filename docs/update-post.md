@@ -30,8 +30,6 @@ To update a post, make a `POST` request with the required parameters included in
 | status           | string | The new status of the post (e.g., `publish`). | 
 | author           | int    | The ID of the author of the post.             | 
 | featured_image   | string | URL of the new featured image for the post.   | 
-| category         | string | Comma-separated list of category IDs.         |
-| tag              | string | Comma-separated list of tags.                 |
 
 ### Example 
 
@@ -50,8 +48,6 @@ $http({
         status: 'publish',
         author: 1,
         featured_image: 'https://cdn.pixabay.com/photo/2018/07/10/21/53/tournament-3529744_1280.jpg'
-        category: '2,5', 
-        tag: 'WordPress,API' 
     }
 }).then(function successCallback(response) {
     console.log('Post updated:', response.data.data);

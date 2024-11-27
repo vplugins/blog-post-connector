@@ -14,7 +14,6 @@ Welcome to the documentation for the **SM Post Connector** plugin. This plugin i
 	- [Delete Post](delete-post.md)
 	- [Get Authors](get-authors.md)
 	- [Get Categories](get-categories.md)
-	- [Get Tags](get-tags.md)
 - [FAQ](faq.md)
 - [Support](#support)
 

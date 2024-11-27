@@ -1,5 +1,5 @@
 # `/categories` 
-The `/categories` endpoint retrieves a list of category IDs.
+The `/categories` endpoint retrieves a list of categories, including their names, IDs, and the number of posts associated with each category.
 
 ## Endpoint
 
