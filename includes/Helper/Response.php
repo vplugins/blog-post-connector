@@ -160,6 +160,6 @@ class Response {
      */
     public static function error($key = '') {
         $message = Globals::get_success_message($key);
-        return self::create_response(400, $message);
+        return self::create_response(500, $message);
     }
 }
