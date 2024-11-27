@@ -21,6 +21,7 @@ use VPlugins\SMPostConnector\Endpoints\{
     CreatePost,
     DeletePost,
     UpdatePost,
+    GetPost,
     GetAuthors,
     GetCategories,
     GetTags,
@@ -47,7 +48,8 @@ class EndpointRegistry {
         GetCategories::class,
         Status::class,
         Token::class,
-        GetTags::class
+        GetTags::class,
+        GetPost::class
     ];
 
     /**
