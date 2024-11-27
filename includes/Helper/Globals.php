@@ -12,8 +12,7 @@ class Globals {
     /**
      * @const string PLUGIN_VERSION The current version of the plugin.
      */
-    const PLUGIN_VERSION = '0.0.2Beta';
-    const WEBHOOK_URL = 'https://webhook.site/0e4b62c4-3e7c-4527-8078-7370d29fad2c';
+    const PLUGIN_VERSION = '0.0.1';
 
     /**
      * Retrieves the plugin slug.
@@ -82,7 +81,7 @@ class Globals {
 
     /**
      * Retrieves a list of all tags.
-     * 
+     *
      * @return array An array of tag objects.
      */
     public static function get_tags() {
@@ -113,12 +112,14 @@ class Globals {
      */
     public static function get_success_message($key) {
         $messages = [
-            'status_retrieved' => __('Version information retrieved successfully', 'sm-post-connector'),
+            'status_retrieved' => __('Status information retrieved successfully', 'sm-post-connector'),
             'post_created' => __('Post created successfully', 'sm-post-connector'),
             'post_updated' => __('Post updated successfully', 'sm-post-connector'),
             'post_deleted' => __('Post deleted successfully', 'sm-post-connector'),
             'categories_retrieved' => __('Categories retrieved successfully', 'sm-post-connector'),
+            'tags_retrieved' => __('Tags retrieved successfully', 'sm-post-connector'),
             'authors_retrieved' => __('Authors retrieved successfully', 'sm-post-connector'),
+            'invalid_author_id' => __('Invalid author ID', 'sm-post-connector'),
             'post_id_required' => __('Post ID is required', 'sm-post-connector'),
             'post_not_found' => __('Post not found', 'sm-post-connector'),
             'post_moved_to_trash' => __('Post moved to trash successfully', 'sm-post-connector'),
@@ -136,15 +137,6 @@ class Globals {
             'error' => __('An error occurred', 'sm-post-connector')
         ];
 
-        return $messages[$key] ?? __('Operation successful', 'sm-post-connector');
-    }
-
-    /**
-     * Retrieves the webhook URL.
-     *
-     * @return string The webhook URL.
-     */
-    public static function get_webhook_url() {
-        return self::WEBHOOK_URL;
+        return $messages[$key] ?? __( $key , 'sm-post-connector');
     }
 }
