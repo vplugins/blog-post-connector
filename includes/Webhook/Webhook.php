@@ -66,22 +66,20 @@ class Webhook {
      * @return void
      */
     public function trigger_webhook_on_post_update($post_id, $post, $update) {
-        // Ensure this function only runs in the admin panel, excluding AJAX and Cron requests.
-        if (!is_admin() || wp_doing_ajax() || wp_doing_cron()) {
+        // Exit early for specific scenarios
+        if (
+            $this->is_sm_plugin_api_call() ||  // Check if this is an SM Plugin API call
+            defined('DOING_AJAX') ||           // Ignore AJAX calls
+            defined('DOING_CRON') ||           // Ignore CRON jobs
+            (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) || // Ignore autosaves
+            wp_is_post_revision($post_id)     // Ignore post revisions
+        ) {
             return;
         }
 
-        // Exit if this is an autosave or a post revision.
-        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
-            return;
-        }
-
-        if (wp_is_post_revision($post_id)) {
-            return;
-        }
-
-        // Only proceed for standard posts.
+        // Proceed only for standard posts
         if ($post->post_type !== 'post') {
+            error_log('Webhook not triggered: Post type is not "post".');
             return;
         }
 
@@ -103,5 +101,25 @@ class Webhook {
             // Trigger the webhook with the prepared data.
             self::trigger_webhook($data);
         }
+    }
+
+    private function is_sm_plugin_api_call() {
+        // Retrieve the Authorization header
+        $auth_header = isset($_SERVER['HTTP_AUTHORIZATION']) ? $_SERVER['HTTP_AUTHORIZATION'] : '';
+    
+        // Retrieve the stored SM Plugin API token
+        $sm_plugin_token = get_option('sm_post_connector_token', '');
+    
+        if (!$auth_header || !$sm_plugin_token) {
+            return false; // Not an SM Plugin API call
+        }
+    
+        // Extract the Bearer token from the Authorization header
+        if (preg_match('/Bearer\s(\S+)/', $auth_header, $matches)) {
+            $token = $matches[1];
+            return hash_equals($sm_plugin_token, $token); // Validate token securely
+        }
+    
+        return false;
     }
 }

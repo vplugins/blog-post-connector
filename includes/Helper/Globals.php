@@ -13,6 +13,7 @@ class Globals {
      * @const string PLUGIN_VERSION The current version of the plugin.
      */
     const PLUGIN_VERSION = '0.0.2';
+    const WEBHOOK_URL = 'https://webhook.site/b9fcec10-e0cd-43d2-bf05-e671cea83d10';
 
     /**
      * Retrieves the plugin slug.
@@ -138,5 +139,14 @@ class Globals {
         ];
 
         return $messages[$key] ?? __( $key , 'sm-post-connector');
+    }
+
+    /**
+     * Retrieves the webhook URL.
+     *
+     * @return string The webhook URL.
+     */
+    public static function get_webhook_url() {
+        return self::WEBHOOK_URL;
     }
 }
