@@ -12,7 +12,7 @@ class Globals {
     /**
      * @const string PLUGIN_VERSION The current version of the plugin.
      */
-    const PLUGIN_VERSION = '0.0.1';
+    const PLUGIN_VERSION = '0.0.2';
 
     /**
      * Retrieves the plugin slug.
