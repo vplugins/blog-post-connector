@@ -92,10 +92,19 @@ class Webhook {
             // Prepare the data to send to the webhook, including the domain for context.
             $data = [
                 'post_id'   => $post_id,
-                'title'     => sanitize_text_field($post->post_title),
-                'status'    => sanitize_text_field($post->post_status),
                 'action'    => $update ? 'updated' : 'created',
                 'domain'    => esc_url(home_url()), // Include the domain name in the payload.
+                'post'      => [
+                    'title' => $post->post_title,
+                    'content' => $post->post_content,
+                    'status' => $post->post_status,
+                    'author' => get_the_author_meta('display_name', $post->post_author),
+                    'date' => $post->post_date,
+                    'modified' => $post->post_modified,
+                    'permalink' => get_permalink($post_id),
+                    'categories' => wp_get_post_categories($post_id),
+                    'tags' => wp_get_post_tags($post_id),
+                ]
             ];
 
             // Trigger the webhook with the prepared data.
