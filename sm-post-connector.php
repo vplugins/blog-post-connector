@@ -28,6 +28,7 @@ use VPlugins\SMPostConnector\Endpoints\{
     GetTags,
     Status
 };
+use VPlugins\SMPostConnector\Middleware\LogsMiddleware;
 
 /**
  * Class SMPostConnector
@@ -60,6 +61,7 @@ class SMPostConnector {
         self::initializeEndpoints();
         self::initializeUpdater();
         self::initializeWebhook();
+        self::initializeLogsMiddleware();
     }
 
     /**
@@ -90,7 +92,19 @@ class SMPostConnector {
             new Webhook();
         }
     }
+
+    /**
+     * Initializes the logs middleware for logging API requests.
+     */
+    private static function initializeLogsMiddleware(): void {
+        if (class_exists(LogsMiddleware::class)) {
+            new LogsMiddleware(); // Instantiate LogsMiddleware
+        }
+    }
 }
 
 // Initialize the plugin
 add_action('plugins_loaded', [SMPostConnector::class, 'initialize']);
+
+// Register activation hook for setting up necessary plugin components.
+register_activation_hook(__FILE__, ['VPlugins\SMPostConnector\Middleware\LogsMiddleware', 'activate']);
