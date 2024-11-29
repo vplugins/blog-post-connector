@@ -65,9 +65,26 @@ abstract class BasePost {
         $tags = $request->get_param('tag');
         $featured_image_url = $request->get_param('featured_image');
 
-        // Convert comma-separated strings to arrays, trim spaces, and remove empty values
-        $categories_array = !empty($categories) ? array_map('intval', array_filter(array_map('trim', explode(',', $categories)))) : [];
-        $tags_array = !empty($tags) ? array_map('sanitize_text_field', array_filter(array_map('trim', explode(',', $tags)))) : [];
+        // Get the category and tag parameters
+        $categories = $request->get_param('category');
+        $tags = $request->get_param('tag');
+
+        // Check if categories and tags are already arrays or comma-separated strings
+        if (is_string($categories)) {
+            $categories_array = array_map('intval', array_filter(array_map('trim', explode(',', $categories))));
+        } elseif (is_array($categories)) {
+            $categories_array = array_map('intval', $categories);
+        } else {
+            $categories_array = [];
+        }
+
+        if (is_string($tags)) {
+            $tags_array = array_filter(array_map('sanitize_text_field', array_map('trim', explode(',', $tags))));
+        } elseif (is_array($tags)) {
+            $tags_array = array_filter(array_map('sanitize_text_field', $tags));
+        } else {
+            $tags_array = [];
+        }
 
         // Set default category if no categories are provided
         if (empty($categories_array) && !$is_update) {
