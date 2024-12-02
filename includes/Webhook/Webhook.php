@@ -18,6 +18,9 @@ class Webhook {
      */
     public function __construct() {
         add_action('save_post', [$this, 'trigger_webhook_on_post_update'], 10, 3);
+        add_action('before_delete_post', [$this, 'trigger_webhook_on_post_delete'], 10, 1);
+        add_action('wp_trash_post', [$this, 'trigger_webhook_on_post_trash'], 10, 1);
+        add_action('untrash_post', [$this, 'trigger_webhook_on_post_restore'], 10, 1);
     }
 
     /**
@@ -88,7 +91,11 @@ class Webhook {
         $updated_by_sm_plugin = get_post_meta($post_id, 'updated_by_sm_plugin', true);
 
         // Only trigger the webhook if the post was added or updated by the SM plugin.
+        error_log('Added by SM Plugin: ' . $post->post_status);
         if ($added_by_sm_plugin || $updated_by_sm_plugin) {
+            if( $post->post_status == 'trash' ) {
+                return;
+            }
             // Prepare the data to send to the webhook, including the domain for context.
             $data = [
                 'post_id'   => $post_id,
@@ -108,6 +115,102 @@ class Webhook {
             ];
 
             // Trigger the webhook with the prepared data.
+            self::trigger_webhook($data);
+        }
+    }
+
+    /**
+     * Triggers the webhook when a post is permanently deleted.
+     *
+     * @param int $post_id The ID of the post being deleted.
+     */
+    public function trigger_webhook_on_post_delete($post_id) {
+        // Get the post object
+        $post = get_post($post_id);
+
+        if (!$post || $post->post_type !== 'post') {
+            return; // Only handle standard posts
+        }
+
+        // Check if the post has the required meta fields
+        $added_by_sm_plugin = get_post_meta($post_id, 'added_by_sm_plugin', true);
+        $updated_by_sm_plugin = get_post_meta($post_id, 'updated_by_sm_plugin', true);
+
+        if ($added_by_sm_plugin || $updated_by_sm_plugin) {
+            // Prepare data to send to the webhook
+            $data = [
+                'post_id' => $post_id,
+                'title'   => $post->post_title,
+                'status'  => 'deleted',
+                'action'  => 'deleted',
+                'domain'  => home_url(),
+            ];
+
+            // Trigger the webhook
+            self::trigger_webhook($data);
+        }
+    }
+
+    /**
+     * Triggers the webhook when a post is moved to the trash.
+     *
+     * @param int $post_id The ID of the post being trashed.
+     */
+    public function trigger_webhook_on_post_trash($post_id) {
+        // Get the post object
+        $post = get_post($post_id);
+
+        if (!$post || $post->post_type !== 'post') {
+            return; // Only handle standard posts
+        }
+
+        // Check if the post has the required meta fields
+        $added_by_sm_plugin = get_post_meta($post_id, 'added_by_sm_plugin', true);
+        $updated_by_sm_plugin = get_post_meta($post_id, 'updated_by_sm_plugin', true);
+
+        if ($added_by_sm_plugin || $updated_by_sm_plugin) {
+            // Prepare data to send to the webhook
+            $data = [
+                'post_id' => $post_id,
+                'title'   => $post->post_title,
+                'status'  => 'trashed',
+                'action'  => 'trashed',
+                'domain'  => home_url(),
+            ];
+
+            // Trigger the webhook
+            self::trigger_webhook($data);
+        }
+    }
+
+    /**
+     * Triggers the webhook when a post is restored from the trash.
+     *
+     * @param int $post_id The ID of the post being restored.
+     */
+    public function trigger_webhook_on_post_restore($post_id) {
+        // Get the post object
+        $post = get_post($post_id);
+
+        if (!$post || $post->post_type !== 'post') {
+            return; // Only handle standard posts
+        }
+
+        // Check if the post has the required meta fields
+        $added_by_sm_plugin = get_post_meta($post_id, 'added_by_sm_plugin', true);
+        $updated_by_sm_plugin = get_post_meta($post_id, 'updated_by_sm_plugin', true);
+
+        if ($added_by_sm_plugin || $updated_by_sm_plugin) {
+            // Prepare data to send to the webhook
+            $data = [
+                'post_id' => $post_id,
+                'title'   => $post->post_title,
+                'status'  => 'restored',
+                'action'  => 'restored',
+                'domain'  => home_url(),
+            ];
+
+            // Trigger the webhook
             self::trigger_webhook($data);
         }
     }
