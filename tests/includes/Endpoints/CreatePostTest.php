@@ -1,8 +1,8 @@
 <?php
 
-namespace VPlugins\BlogPostConnector\Tests\Endpoints;
+namespace VPlugins\SMPostConnector\Tests\Endpoints;
 
-use VPlugins\BlogPostConnector\Endpoints\CreatePost;
+use VPlugins\SMPostConnector\Endpoints\CreatePost;
 use WP_Mock\Tools\TestCase;
 
 class CreatePostTest extends TestCase {

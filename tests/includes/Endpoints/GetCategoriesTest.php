@@ -1,8 +1,8 @@
 <?php
 
-namespace VPlugins\BlogPostConnector\Tests\Endpoints;
+namespace VPlugins\SMPostConnector\Tests\Endpoints;
 
-use VPlugins\BlogPostConnector\Endpoints\GetCategories;
+use VPlugins\SMPostConnector\Endpoints\GetCategories;
 use WP_Mock\Tools\TestCase;
 use WP_REST_Request;
 use WP_REST_Response;

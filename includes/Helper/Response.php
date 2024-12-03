@@ -1,9 +1,9 @@
 <?php
 
-namespace VPlugins\BlogPostConnector\Helper;
+namespace VPlugins\SMPostConnector\Helper;
 
 use WP_REST_Response;
-use VPlugins\BlogPostConnector\Helper\Globals;
+use VPlugins\SMPostConnector\Helper\Globals;
 
 /**
  * Class Response

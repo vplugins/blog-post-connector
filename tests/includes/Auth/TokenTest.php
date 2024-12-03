@@ -1,8 +1,8 @@
 <?php
 
-namespace VPlugins\BlogPostConnector\Tests\Auth;
+namespace VPlugins\SMPostConnector\Tests\Auth;
 
-use VPlugins\BlogPostConnector\Auth\Token;
+use VPlugins\SMPostConnector\Auth\Token;
 use WP_Mock\Tools\TestCase;
 
 class TokenTest extends TestCase {
