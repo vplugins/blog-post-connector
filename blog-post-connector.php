@@ -1,9 +1,9 @@
 <?php
 /**
  * Plugin Name: Blog Post Connector
- * Description: A plugin to connect WordPress with the Social Marketing tool.
+ * Description: A plugin to publish blogs to your WordPress website.
  * Version: 0.0.3
- * Author: Website Pro WordPress Team
+ * Author: Website Pro, a WordPress hosting platform.
  * Text Domain: blog-post-connector
  */
 

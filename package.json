@@ -1,8 +1,8 @@
 {
     "name": "blog-post-connector",
     "version": "0.0.3",
-    "description": "A plugin to connect WordPress with the Social Marketing tool.",
-    "author": "Website Pro WordPress Team",
+    "description": "A plugin to publish blogs to your WordPress website.",
+    "author": "Website Pro, a WordPress hosting platform.",
     "scripts": {
       "build": "wp-scripts build",
       "check-engines": "wp-scripts check-engines",

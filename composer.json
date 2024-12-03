@@ -1,6 +1,6 @@
 {
     "name": "vplugins/blog-post-connector",
-    "description": "A plugin to connect WordPress with the Social Marketing tool.",
+    "description": "A plugin to publish blogs to your WordPress website.",
     "type": "wordpress-plugin",
     "autoload": {
         "psr-4": {
