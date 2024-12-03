@@ -54,7 +54,7 @@ $http({
             "version": "6.6.2",
             "plugin_version": {
                 "current": "0.0.1",
-                "latest": "v0.0.2Beta"
+                "latest": "0.0.3"
             }
         }
     }

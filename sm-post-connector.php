@@ -2,7 +2,7 @@
 /**
  * Plugin Name: SM Post Connector
  * Description: A plugin to connect WordPress with the Social Marketing tool.
- * Version: 0.0.2
+ * Version: 0.0.3
  * Author: Website Pro WordPress Team
  * Text Domain: sm-post-connector
  */
