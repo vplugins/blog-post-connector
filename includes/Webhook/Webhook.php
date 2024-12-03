@@ -71,7 +71,7 @@ class Webhook {
     public function trigger_webhook_on_post_update($post_id, $post, $update) {
         // Exit early for specific scenarios
         if (
-            $this->is_sm_plugin_api_call() ||  // Check if this is an SM Plugin API call
+            $this->is_sm_plugin_api_call() ||  // Check if this is a Plugin API call
             defined('DOING_AJAX') ||           // Ignore AJAX calls
             defined('DOING_CRON') ||           // Ignore CRON jobs
             (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) || // Ignore autosaves
@@ -86,12 +86,12 @@ class Webhook {
             return;
         }
 
-        // Retrieve custom post meta to determine if this post was added/updated by the SM plugin.
+        // Retrieve custom post meta to determine if this post was added/updated by the plugin.
         $added_by_sm_plugin = get_post_meta($post_id, 'added_by_sm_plugin', true);
         $updated_by_sm_plugin = get_post_meta($post_id, 'updated_by_sm_plugin', true);
 
-        // Only trigger the webhook if the post was added or updated by the SM plugin.
-        error_log('Added by SM Plugin: ' . $post->post_status);
+        // Only trigger the webhook if the post was added or updated by the plugin.
+        error_log('Added by Blog Post Plugin: ' . $post->post_status);
         if ($added_by_sm_plugin || $updated_by_sm_plugin) {
             if( $post->post_status == 'trash' ) {
                 return;
@@ -219,11 +219,11 @@ class Webhook {
         // Retrieve the Authorization header
         $auth_header = isset($_SERVER['HTTP_AUTHORIZATION']) ? $_SERVER['HTTP_AUTHORIZATION'] : '';
     
-        // Retrieve the stored SM Plugin API token
+        // Retrieve the stored Plugin API token
         $sm_plugin_token = get_option('sm_post_connector_token', '');
     
         if (!$auth_header || !$sm_plugin_token) {
-            return false; // Not an SM Plugin API call
+            return false; // Not an Plugin API call
         }
     
         // Extract the Bearer token from the Authorization header

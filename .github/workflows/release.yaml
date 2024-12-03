@@ -49,8 +49,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
       with:
         tag_name: ${{ env.VERSION }}  # Use the validated version tag
-        release_name: SM Plugin ${{ env.VERSION }}
-        body: "Release of SM Post Connector plugin version ${{ env.VERSION }}."
+        release_name: Blog Post Connector Plugin ${{ env.VERSION }}
+        body: "Release of Blog Post Connector plugin version ${{ env.VERSION }}."
         draft: false
         prerelease: false
 

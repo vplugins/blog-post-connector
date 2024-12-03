@@ -1,6 +1,6 @@
 <?php
 /**
- * Uninstall script for SM Plugin.
+ * Uninstall script for Blog Post Connector Plugin.
  *
  * This file is called when the plugin is uninstalled
  */
