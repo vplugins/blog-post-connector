@@ -1,8 +1,8 @@
 <?php 
 
-namespace VPlugins\SMPostConnector\Webhook;
+namespace VPlugins\BlogPostConnector\Webhook;
 
-use VPlugins\SMPostConnector\Helper\Globals;
+use VPlugins\BlogPostConnector\Helper\Globals;
 
 /**
  * Class Webhook

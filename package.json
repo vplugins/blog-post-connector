@@ -1,8 +1,8 @@
 {
-    "name": "sm-post-connector",
-    "version": "0.0.3",
-    "description": "A plugin to connect WordPress with the Social Marketing tool.",
-    "author": "Website Pro WordPress Team",
+    "name": "blog-post-connector",
+    "version": "1.0.0Beta",
+    "description": "A plugin to publish blogs to your WordPress website.",
+    "author": "Website Pro, a WordPress hosting platform.",
     "scripts": {
       "build": "wp-scripts build",
       "check-engines": "wp-scripts check-engines",
@@ -23,7 +23,7 @@
     },
     "repository": {
       "type": "git",
-      "url": "git@github.com:vplugins/sm-post-connector.git"
+      "url": "git@github.com:vplugins/blog-post-connector.git"
     },
     "devDependencies": {
       "@10up/cypress-wp-utils": "^0.2.0",
