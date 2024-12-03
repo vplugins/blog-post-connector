@@ -1,18 +1,18 @@
 <?php
 
-namespace VPlugins\SMPostConnector\Endpoints;
+namespace VPlugins\BlogPostConnector\Endpoints;
 
 use WP_REST_Request;
-use VPlugins\SMPostConnector\Middleware\AuthMiddleware;
-use VPlugins\SMPostConnector\Helper\Globals;
-use VPlugins\SMPostConnector\Helper\Response;
+use VPlugins\BlogPostConnector\Middleware\AuthMiddleware;
+use VPlugins\BlogPostConnector\Helper\Globals;
+use VPlugins\BlogPostConnector\Helper\Response;
 
 /**
  * Class GetTags
  *
  * Registers a REST API endpoint for retrieving tags.
  *
- * @package VPlugins\SMPostConnector\Endpoints
+ * @package VPlugins\BlogPostConnector\Endpoints
  */
 class GetTags {
     /**

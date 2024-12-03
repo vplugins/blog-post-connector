@@ -40,7 +40,7 @@ jobs:
 
     - name: Zip the plugin
       run: |
-        zip -r sm-post-connector-package.zip . -x "*.git*" -x "*.github*" -x "*.yml" -x "phpunit.xml" -x "tests/**" -x "docs/**"
+        zip -r blog-post-connector-package.zip . -x "*.git*" -x "*.github*" -x "*.yml" -x "phpunit.xml" -x "tests/**" -x "docs/**"
 
     - name: Create Release
       id: create_release
@@ -50,7 +50,7 @@ jobs:
       with:
         tag_name: ${{ env.VERSION }}  # Use the validated version tag
         release_name: SM Plugin ${{ env.VERSION }}
-        body: "Release of SM Post Connector plugin version ${{ env.VERSION }}."
+        body: "Release of Blog Post Connector plugin version ${{ env.VERSION }}."
         draft: false
         prerelease: false
 
@@ -60,6 +60,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./sm-post-connector-package.zip
-        asset_name: sm-post-connector-package.zip
+        asset_path: ./blog-post-connector-package.zip
+        asset_name: blog-post-connector-package.zip
         asset_content_type: application/zip

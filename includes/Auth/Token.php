@@ -1,11 +1,11 @@
 <?php
 
-namespace VPlugins\SMPostConnector\Auth;
+namespace VPlugins\BlogPostConnector\Auth;
 
 /**
  * Class Token
  *
- * Handles token generation, validation, and plugin settings page for the SM Post Connector plugin.
+ * Handles token generation, validation, and plugin settings page for the Blog Post Connector plugin.
  */
 class Token {
 
@@ -48,10 +48,10 @@ class Token {
      */
     public function add_settings_page() {
         add_options_page(
-            __('SM Post Connector Settings', 'sm-post-connector'),
-            __('SM Post Connector', 'sm-post-connector'),
+            __('Blog Post Connector Settings', 'blog-post-connector'),
+            __('Blog Post Connector', 'blog-post-connector'),
             'manage_options',
-            'sm-post-connector',
+            'blog-post-connector',
             [$this, 'render_settings_page']
         );
     }
@@ -60,7 +60,7 @@ class Token {
      * Enqueue media uploader script
      */
     public function enqueue_media_uploader($hook) {
-        if ($hook !== 'settings_page_sm-post-connector') {
+        if ($hook !== 'settings_page_blog-post-connector') {
             return;
         }
         wp_enqueue_media(); // Enqueue media uploader script
@@ -78,55 +78,55 @@ class Token {
 
         add_settings_section(
             'sm_post_connector_settings_section_token',
-            __('Token Settings', 'sm-post-connector'),
+            __('Token Settings', 'blog-post-connector'),
             null,
-            'sm-post-connector-token'
+            'blog-post-connector-token'
         );
 
         add_settings_section(
             'sm_post_connector_settings_section_post',
-            __('Post Settings', 'sm-post-connector'),
+            __('Post Settings', 'blog-post-connector'),
             null,
-            'sm-post-connector-post'
+            'blog-post-connector-post'
         );
 
         add_settings_field(
             'sm_post_connector_token',
-            __('Access Token', 'sm-post-connector'),
+            __('Access Token', 'blog-post-connector'),
             [$this, 'render_token_field'],
-            'sm-post-connector-token',
+            'blog-post-connector-token',
             'sm_post_connector_settings_section_token'
         );
 
         add_settings_field(
             'sm_post_connector_default_post_type',
-            __('Default Post Type', 'sm-post-connector'),
+            __('Default Post Type', 'blog-post-connector'),
             [$this, 'render_post_type_field'],
-            'sm-post-connector-post',
+            'blog-post-connector-post',
             'sm_post_connector_settings_section_post'
         );
 
         add_settings_field(
             'sm_post_connector_default_author',
-            __('Default Author', 'sm-post-connector'),
+            __('Default Author', 'blog-post-connector'),
             [$this, 'render_author_field'],
-            'sm-post-connector-post',
+            'blog-post-connector-post',
             'sm_post_connector_settings_section_post'
         );
 
         add_settings_field(
             'sm_post_connector_default_category',
-            __('Default Category', 'sm-post-connector'),
+            __('Default Category', 'blog-post-connector'),
             [$this, 'render_category_field'],
-            'sm-post-connector-post',
+            'blog-post-connector-post',
             'sm_post_connector_settings_section_post'
         );
 
         add_settings_field(
             'sm_post_connector_logo',
-            __('Site Logo', 'sm-post-connector'),
+            __('Site Logo', 'blog-post-connector'),
             [$this, 'render_logo_field'],
-            'sm-post-connector-post',
+            'blog-post-connector-post',
             'sm_post_connector_settings_section_post'
         );
     }
@@ -138,27 +138,27 @@ class Token {
         $active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'token';
         ?>
         <div class="wrap">
-            <h1><?php echo esc_html(__('SM Post Connector Settings', 'sm-post-connector')); ?></h1>
+            <h1><?php echo esc_html(__('Blog Post Connector Settings', 'blog-post-connector')); ?></h1>
             <h2 class="nav-tab-wrapper">
-                <a href="?page=sm-post-connector&tab=token" class="nav-tab <?php echo $active_tab == 'token' ? 'nav-tab-active' : ''; ?>"><?php echo esc_html(__('Token Settings', 'sm-post-connector')); ?></a>
-                <a href="?page=sm-post-connector&tab=post" class="nav-tab <?php echo $active_tab == 'post' ? 'nav-tab-active' : ''; ?>"><?php echo esc_html(__('Post Settings', 'sm-post-connector')); ?></a>
+                <a href="?page=blog-post-connector&tab=token" class="nav-tab <?php echo $active_tab == 'token' ? 'nav-tab-active' : ''; ?>"><?php echo esc_html(__('Token Settings', 'blog-post-connector')); ?></a>
+                <a href="?page=blog-post-connector&tab=post" class="nav-tab <?php echo $active_tab == 'post' ? 'nav-tab-active' : ''; ?>"><?php echo esc_html(__('Post Settings', 'blog-post-connector')); ?></a>
             </h2>
             <form method="post" action="options.php">
                 <?php
                 if ($active_tab == 'token') {
                     settings_fields('sm_post_connector_settings_token');
-                    do_settings_sections('sm-post-connector-token');
+                    do_settings_sections('blog-post-connector-token');
                 } else {
                     settings_fields('sm_post_connector_settings');
-                    do_settings_sections('sm-post-connector-post');
+                    do_settings_sections('blog-post-connector-post');
                 }
-                submit_button(__('Save Changes', 'sm-post-connector'), 'primary');
+                submit_button(__('Save Changes', 'blog-post-connector'), 'primary');
                 ?>
             </form>
             <?php if ($active_tab == 'token'): ?>
                 <form method="post">
                     <input type="hidden" name="generate_new_token" value="1">
-                    <?php submit_button(__('Generate New Token', 'sm-post-connector'), 'secondary'); ?>
+                    <?php submit_button(__('Generate New Token', 'blog-post-connector'), 'secondary'); ?>
                 </form>
                 <?php $this->handle_generate_token_request(); ?>
             <?php endif; ?>
@@ -222,7 +222,7 @@ class Token {
      * Renders the field for selecting the default author.
      */
     public function render_author_field() {
-        $authors = get_users(['who' => 'authors']);
+        $authors = get_users( ['capability' => 'edit_posts'] );
         $default_author = get_option('sm_post_connector_default_author', '');
 
         ?>
@@ -261,7 +261,7 @@ class Token {
         $logo = get_option('sm_post_connector_logo'); // Retrieve the logo option
         ?>
         <input type="hidden" id="sm_post_connector_logo" name="sm_post_connector_logo" value="<?php echo esc_attr($logo); ?>" />
-        <button type="button" class="button" id="sm_post_connector_upload_logo" style="margin-bottom: 10px !important;"><?php _e('Upload Logo', 'sm-post-connector'); ?></button>
+        <button type="button" class="button" id="sm_post_connector_upload_logo" style="margin-bottom: 10px !important;"><?php _e('Upload Logo', 'blog-post-connector'); ?></button>
         <div id="sm_post_connector_logo_preview">
             <?php if ($logo): ?>
                 <img src="<?php echo esc_url($logo); ?>" style="max-width: 150px; max-height: 150px;">
@@ -280,9 +280,9 @@ class Token {
                     }
 
                     mediaUploader = wp.media.frames.file_frame = wp.media({
-                        title: '<?php _e('Select Logo', 'sm-post-connector'); ?>',
+                        title: '<?php _e('Select Logo', 'blog-post-connector'); ?>',
                         button: {
-                            text: '<?php _e('Select Logo', 'sm-post-connector'); ?>'
+                            text: '<?php _e('Select Logo', 'blog-post-connector'); ?>'
                         },
                         multiple: false
                     });

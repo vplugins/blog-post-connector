@@ -1,17 +1,17 @@
 <?php
 
-namespace VPlugins\SMPostConnector\Endpoints;
+namespace VPlugins\BlogPostConnector\Endpoints;
 
 use WP_REST_Request;
-use VPlugins\SMPostConnector\Middleware\AuthMiddleware;
-use VPlugins\SMPostConnector\Helper\Response;
+use VPlugins\BlogPostConnector\Middleware\AuthMiddleware;
+use VPlugins\BlogPostConnector\Helper\Response;
 
 /**
  * Class GetPost
  *
  * Provides an endpoint for retrieving a single post's details.
  *
- * @package VPlugins\SMPostConnector\Endpoints
+ * @package VPlugins\BlogPostConnector\Endpoints
  */
 class GetPost {
     /**

@@ -1,8 +1,8 @@
 <?php
 
-namespace VPlugins\SMPostConnector\Tests\Endpoints;
+namespace VPlugins\BlogPostConnector\Tests\Endpoints;
 
-use VPlugins\SMPostConnector\Endpoints\Status;
+use VPlugins\BlogPostConnector\Endpoints\Status;
 use WP_Mock\Tools\TestCase;
 use WP_REST_Request;
 use WP_REST_Response;
