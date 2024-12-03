@@ -1,6 +1,6 @@
 # `/status` 
 
-The `/status` endpoint provides information about the current status of the SM Post Connector plugin, including its version.
+The `/status` endpoint provides information about the current status of the Blog Post Connector plugin, including its version.
 
 ## Endpoint
 
@@ -54,7 +54,7 @@ $http({
             "version": "6.6.2",
             "plugin_version": {
                 "current": "0.0.1",
-                "latest": "0.0.3"
+                "latest": "1.0.0Beta"
             }
         }
     }

@@ -1,8 +1,8 @@
 <?php
 
-namespace VPlugins\SMPostConnector\Updater;
+namespace VPlugins\BlogPostConnector\Updater;
 
-use VPlugins\SMPostConnector\Helper\Globals;
+use VPlugins\BlogPostConnector\Helper\Globals;
 
 /**
  * Class Update

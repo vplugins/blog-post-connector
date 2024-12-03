@@ -1,15 +1,15 @@
 <?php
 
-namespace VPlugins\SMPostConnector\Endpoints;
+namespace VPlugins\BlogPostConnector\Endpoints;
 
-use VPlugins\SMPostConnector\Helper\BasePost;
+use VPlugins\BlogPostConnector\Helper\BasePost;
 
 /**
  * Class UpdatePost
  *
  * Registers a REST API endpoint for updating an existing post.
  *
- * @package VPlugins\SMPostConnector\Endpoints
+ * @package VPlugins\BlogPostConnector\Endpoints
  */
 class UpdatePost extends BasePost {
     /**
