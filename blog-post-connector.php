@@ -1,10 +1,10 @@
 <?php
 /**
- * Plugin Name: SM Post Connector
+ * Plugin Name: Blog Post Connector
  * Description: A plugin to connect WordPress with the Social Marketing tool.
  * Version: 0.0.3
  * Author: Website Pro WordPress Team
- * Text Domain: sm-post-connector
+ * Text Domain: blog-post-connector
  */
 
 if (!defined('ABSPATH')) {
@@ -14,10 +14,10 @@ if (!defined('ABSPATH')) {
 // Autoload the classes using Composer
 require_once __DIR__ . '/vendor/autoload.php';
 
-use VPlugins\SMPostConnector\Auth\Token;
-use VPlugins\SMPostConnector\Updater\Update;
-use VPlugins\SMPostConnector\Webhook\Webhook;
-use VPlugins\SMPostConnector\Endpoints\{
+use VPlugins\BlogPostConnector\Auth\Token;
+use VPlugins\BlogPostConnector\Updater\Update;
+use VPlugins\BlogPostConnector\Webhook\Webhook;
+use VPlugins\BlogPostConnector\Endpoints\{
     CreatePost,
     DeletePost,
     UpdatePost,

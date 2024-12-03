@@ -7,7 +7,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 WP_Mock::setUsePatchwork( true );
 WP_Mock::bootstrap();
 
-define( 'SM_PLUGIN_BASENAME', basename( __DIR__ . '/../sm-post-connector.php' ) );
+define( 'SM_PLUGIN_BASENAME', basename( __DIR__ . '/../blog-post-connector.php' ) );
 
 if ( defined( 'WP_TESTS_MULTISITE' ) ) {
 	// Tells the plugin it is network active.
@@ -20,4 +20,4 @@ if ( defined( 'WP_TESTS_MULTISITE' ) ) {
  * Now we include any plugin files that we need to be able to run the tests. This
  * should be files that define the functions and classes you're going to test.
  */
-require_once __DIR__ . '/../sm-post-connector.php';
+require_once __DIR__ . '/../blog-post-connector.php';

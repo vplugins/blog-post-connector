@@ -1,6 +1,6 @@
 <?php
 
-namespace VPlugins\SMPostConnector\Middleware;
+namespace VPlugins\BlogPostConnector\Middleware;
 
 use WP_REST_Request;
 use WP_Error;
@@ -33,7 +33,7 @@ class AuthMiddleware {
 
         // Check if the 'Authorization' header is present and properly formatted
         if (!$auth_header || strpos($auth_header, 'Bearer ') !== 0) {
-            return new WP_Error('rest_forbidden', __('Authorization header not found or malformed.', 'sm-post-connector'), array('status' => 403));
+            return new WP_Error('rest_forbidden', __('Authorization header not found or malformed.', 'blog-post-connector'), array('status' => 403));
         }
 
         // Extract the token from the 'Authorization' header
@@ -44,7 +44,7 @@ class AuthMiddleware {
 
         // Validate the token
         if (empty($saved_token) || !hash_equals($saved_token, $token)) {
-            return new WP_Error('rest_forbidden', __('Invalid token.', 'sm-post-connector'), array('status' => 403));
+            return new WP_Error('rest_forbidden', __('Invalid token.', 'blog-post-connector'), array('status' => 403));
         }
 
         // If the token is valid, grant permission
