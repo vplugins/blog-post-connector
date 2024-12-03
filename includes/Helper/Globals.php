@@ -12,7 +12,7 @@ class Globals {
     /**
      * @const string PLUGIN_VERSION The current version of the plugin.
      */
-    const PLUGIN_VERSION = '0.0.2';
+    const PLUGIN_VERSION = '0.0.3';
     const WEBHOOK_URL = 'https://webhook.site/b9fcec10-e0cd-43d2-bf05-e671cea83d10';
 
     /**
