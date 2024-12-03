@@ -1,6 +1,6 @@
-# Blog Post Connector Plugin
+# SM Post Connector Plugin
 
-The Blog Post Connector plugin bridges the gap between WordPress and Social Marketing tools, enabling users to manage blog posts directly from their Social Marketing platform.
+The SM Post Connector plugin bridges the gap between WordPress and Social Marketing tools, enabling users to manage blog posts directly from their Social Marketing platform.
 
 ## Features
 
@@ -11,7 +11,7 @@ The Blog Post Connector plugin bridges the gap between WordPress and Social Mark
 ## Usage
 
 1. **Configure Settings**:
-   - Navigate to WordPress Admin Panel › Blog Post Connector › Settings.
+   - Navigate to WordPress Admin Panel › SM Post Connector › Settings.
    - Set up your access token and default settings for post type, author, and category.
 
 2. **API Endpoints**:

@@ -7,7 +7,7 @@
     <exclude/>
   </coverage>
   <testsuites>
-    <testsuite name="Blog Post Connector">
+    <testsuite name="SM Post Connector">
       <directory suffix="Test.php">./tests/includes</directory>
       <exclude>tests/phpunit/multisite</exclude>
     </testsuite>

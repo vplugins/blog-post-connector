@@ -1,10 +1,10 @@
 <?php 
-namespace VPlugins\BlogPostConnector\Helper;
+namespace VPlugins\SMPostConnector\Helper;
 
 use WP_REST_Request;
 use WP_REST_Response;
-use VPlugins\BlogPostConnector\Middleware\AuthMiddleware;
-use VPlugins\BlogPostConnector\Helper\Response;
+use VPlugins\SMPostConnector\Middleware\AuthMiddleware;
+use VPlugins\SMPostConnector\Helper\Response;
 
 /**
  * Abstract class BasePost

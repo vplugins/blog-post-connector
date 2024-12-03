@@ -1,6 +1,6 @@
 <?php
 
-namespace VPlugins\BlogPostConnector\Helper;
+namespace VPlugins\SMPostConnector\Helper;
 
 /**
  * Class Globals
@@ -12,7 +12,7 @@ class Globals {
     /**
      * @const string PLUGIN_VERSION The current version of the plugin.
      */
-    const PLUGIN_VERSION = '1.0.0Beta';
+    const PLUGIN_VERSION = '0.0.3';
     const WEBHOOK_URL = 'https://webhook.site/b9fcec10-e0cd-43d2-bf05-e671cea83d10';
 
     /**
@@ -21,7 +21,7 @@ class Globals {
      * @return string The plugin slug.
      */
     public static function get_plugin_slug() {
-        return 'blog-post-connector';  // Your plugin slug
+        return 'sm-post-connector';  // Your plugin slug
     }
 
     /**
@@ -30,7 +30,7 @@ class Globals {
      * @return string The path to the main plugin file.
      */
     public static function get_plugin_file() {
-        return 'blog-post-connector/blog-post-connector.php';  // Path to the main plugin file
+        return 'sm-post-connector/sm-post-connector.php';  // Path to the main plugin file
     }
 
     /**
@@ -48,7 +48,7 @@ class Globals {
      * @return string The GitHub repository name.
      */
     public static function get_github_repo() {
-        return 'blog-post-connector';  // GitHub repository name
+        return 'sm-post-connector';  // GitHub repository name
     }
 
     /**
@@ -113,32 +113,32 @@ class Globals {
      */
     public static function get_success_message($key) {
         $messages = [
-            'status_retrieved' => __('Status information retrieved successfully', 'blog-post-connector'),
-            'post_created' => __('Post created successfully', 'blog-post-connector'),
-            'post_updated' => __('Post updated successfully', 'blog-post-connector'),
-            'post_deleted' => __('Post deleted successfully', 'blog-post-connector'),
-            'categories_retrieved' => __('Categories retrieved successfully', 'blog-post-connector'),
-            'tags_retrieved' => __('Tags retrieved successfully', 'blog-post-connector'),
-            'authors_retrieved' => __('Authors retrieved successfully', 'blog-post-connector'),
-            'invalid_author_id' => __('Invalid author ID', 'blog-post-connector'),
-            'post_id_required' => __('Post ID is required', 'blog-post-connector'),
-            'post_not_found' => __('Post not found', 'blog-post-connector'),
-            'post_moved_to_trash' => __('Post moved to trash successfully', 'blog-post-connector'),
-            'post_permanently_deleted' => __('Post permanently deleted successfully', 'blog-post-connector'),
-            'failed_to_delete_post' => __('Failed to delete post', 'blog-post-connector'),
-            'missing_required_parameters' => __('Missing required parameters', 'blog-post-connector'),
-            'invalid_post_status' => __('Invalid post status', 'blog-post-connector'),
-            'date_required_for_future_posts' => __('Date is required for future posts', 'blog-post-connector'),
-            'date_for_publish_status_must_be_past' => __('Date for publish status must be in the past', 'blog-post-connector'),
-            'post_with_title_exists' => __('A post with the same title already exists', 'blog-post-connector'),
-            'post_updated_successfully' => __('Post updated successfully', 'blog-post-connector'),
-            'post_created_successfully' => __('Post created successfully', 'blog-post-connector'),
-            'failed_to_update_post' => __('Failed to update post', 'blog-post-connector'),
-            'failed_to_create_post' => __('Failed to create post', 'blog-post-connector'),
-            'error' => __('An error occurred', 'blog-post-connector')
+            'status_retrieved' => __('Status information retrieved successfully', 'sm-post-connector'),
+            'post_created' => __('Post created successfully', 'sm-post-connector'),
+            'post_updated' => __('Post updated successfully', 'sm-post-connector'),
+            'post_deleted' => __('Post deleted successfully', 'sm-post-connector'),
+            'categories_retrieved' => __('Categories retrieved successfully', 'sm-post-connector'),
+            'tags_retrieved' => __('Tags retrieved successfully', 'sm-post-connector'),
+            'authors_retrieved' => __('Authors retrieved successfully', 'sm-post-connector'),
+            'invalid_author_id' => __('Invalid author ID', 'sm-post-connector'),
+            'post_id_required' => __('Post ID is required', 'sm-post-connector'),
+            'post_not_found' => __('Post not found', 'sm-post-connector'),
+            'post_moved_to_trash' => __('Post moved to trash successfully', 'sm-post-connector'),
+            'post_permanently_deleted' => __('Post permanently deleted successfully', 'sm-post-connector'),
+            'failed_to_delete_post' => __('Failed to delete post', 'sm-post-connector'),
+            'missing_required_parameters' => __('Missing required parameters', 'sm-post-connector'),
+            'invalid_post_status' => __('Invalid post status', 'sm-post-connector'),
+            'date_required_for_future_posts' => __('Date is required for future posts', 'sm-post-connector'),
+            'date_for_publish_status_must_be_past' => __('Date for publish status must be in the past', 'sm-post-connector'),
+            'post_with_title_exists' => __('A post with the same title already exists', 'sm-post-connector'),
+            'post_updated_successfully' => __('Post updated successfully', 'sm-post-connector'),
+            'post_created_successfully' => __('Post created successfully', 'sm-post-connector'),
+            'failed_to_update_post' => __('Failed to update post', 'sm-post-connector'),
+            'failed_to_create_post' => __('Failed to create post', 'sm-post-connector'),
+            'error' => __('An error occurred', 'sm-post-connector')
         ];
 
-        return $messages[$key] ?? __( $key , 'blog-post-connector');
+        return $messages[$key] ?? __( $key , 'sm-post-connector');
     }
 
     /**

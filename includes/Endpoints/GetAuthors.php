@@ -1,18 +1,18 @@
 <?php
 
-namespace VPlugins\BlogPostConnector\Endpoints;
+namespace VPlugins\SMPostConnector\Endpoints;
 
 use WP_REST_Request;
-use VPlugins\BlogPostConnector\Middleware\AuthMiddleware;
-use VPlugins\BlogPostConnector\Helper\Globals;
-use VPlugins\BlogPostConnector\Helper\Response;
+use VPlugins\SMPostConnector\Middleware\AuthMiddleware;
+use VPlugins\SMPostConnector\Helper\Globals;
+use VPlugins\SMPostConnector\Helper\Response;
 
 /**
  * Class GetAuthors
  *
  * Registers a REST API endpoint for retrieving authors.
  *
- * @package VPlugins\BlogPostConnector\Endpoints
+ * @package VPlugins\SMPostConnector\Endpoints
  */
 class GetAuthors {
     /**
