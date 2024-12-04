@@ -129,6 +129,7 @@ abstract class BasePost {
         $attachment_id = 0;
         if (!empty($featured_image_url)) {
             $image_data = $this->download_image($featured_image_url);
+            error_log(print_r($image_data, true));
             if ($image_data['status'] === 'error') {
                 return Response::error($image_data['message'], 400);
             }
@@ -180,13 +181,46 @@ abstract class BasePost {
      */
     protected function download_image($image_url) {
         $response = wp_remote_get($image_url);
+    
+        // Check for errors in the HTTP response
         if (is_wp_error($response) || wp_remote_retrieve_response_code($response) !== 200) {
             return ['status' => 'error', 'message' => 'Failed to download image.'];
         }
-
-        $file_path = wp_upload_dir()['path'] . '/' . basename($image_url);
-        file_put_contents($file_path, wp_remote_retrieve_body($response));
-
+    
+        // Get the content type from the headers to determine the image type
+        $content_type = wp_remote_retrieve_header($response, 'content-type');
+        $image_extension = '';
+        switch ($content_type) {
+            case 'image/jpeg':
+            case 'image/jpg':
+                $image_extension = 'jpg';
+                break;
+            case 'image/png':
+                $image_extension = 'png';
+                break;
+            case 'image/gif':
+                $image_extension = 'gif';
+                break;
+            case 'image/webp':
+                $image_extension = 'webp';
+                break;
+            default:
+                return ['status' => 'error', 'message' => 'Unsupported image type.'];
+        }
+    
+        // Generate a unique file name using a hash
+        $unique_name = uniqid('image_', true) . '.' . $image_extension;
+    
+        // Get the WordPress uploads directory
+        $upload_dir = wp_upload_dir();
+        $file_path = $upload_dir['path'] . '/' . $unique_name;
+    
+        // Save the image to the uploads directory
+        $image_data = wp_remote_retrieve_body($response);
+        if (file_put_contents($file_path, $image_data) === false) {
+            return ['status' => 'error', 'message' => 'Failed to save image.'];
+        }
+    
         return ['status' => 'success', 'file_path' => $file_path];
     }
 
