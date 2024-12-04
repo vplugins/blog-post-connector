@@ -129,7 +129,6 @@ abstract class BasePost {
         $attachment_id = 0;
         if (!empty($featured_image_url)) {
             $image_data = $this->download_image($featured_image_url);
-            error_log(print_r($image_data, true));
             if ($image_data['status'] === 'error') {
                 return Response::error($image_data['message'], 400);
             }
