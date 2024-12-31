@@ -33,6 +33,10 @@ class Webhook {
         add_action('user_register', [$this, 'trigger_webhook_on_author_register'], 10, 1);
         add_action('profile_update', [$this, 'trigger_webhook_on_author_update'], 10, 2);
         add_action('delete_user', [$this, 'trigger_webhook_on_author_delete'], 10, 1);
+
+        add_action('activated_plugin', [$this, 'trigger_webhook_on_plugin_activation']);
+        add_action('deactivated_plugin', [$this, 'trigger_webhook_on_plugin_deactivation']);
+        add_action('deleted_plugin', [$this, 'trigger_webhook_on_plugin_deletion']);
     }
 
     /**
@@ -395,6 +399,66 @@ class Webhook {
             ];
             self::trigger_webhook($data);
         }
+    }
+
+    /**
+     * Trigger a webhook when this plugin is activated.
+     *
+     * @param string $plugin The path to the plugin file relative to the plugins directory.
+     */
+    public function trigger_webhook_on_plugin_activation($plugin) {
+        if ($plugin !== "blog-post-connector/blog-post-connector.php") {
+            return; // Exit if the activated plugin is not this plugin.
+        }
+
+        $data = [
+            'action' => 'activated',
+            'plugin' => $plugin,
+            'domain' => esc_url(home_url()), // Include the domain name in the payload.
+            'timestamp' => current_time('mysql'),
+        ];
+
+        self::trigger_webhook($data);
+    }
+
+    /**
+     * Trigger a webhook when this plugin is deactivated.
+     *
+     * @param string $plugin The path to the plugin file relative to the plugins directory.
+     */
+    public function trigger_webhook_on_plugin_deactivation($plugin) {
+        if ($plugin !== "blog-post-connector/blog-post-connector.php") {
+            return; // Exit if the deactivated plugin is not this plugin.
+        }
+
+        $data = [
+            'action' => 'deactivated',
+            'plugin' => $plugin,
+            'domain' => esc_url(home_url()), // Include the domain name in the payload.
+            'timestamp' => current_time('mysql'),
+        ];
+
+        self::trigger_webhook($data);
+    }
+
+    /**
+     * Trigger a webhook when this plugin is deleted.
+     *
+     * @param string $plugin The path to the plugin file relative to the plugins directory.
+     */
+    public function trigger_webhook_on_plugin_deletion($plugin) {
+        if ($plugin !== "blog-post-connector/blog-post-connector.php") {
+            return; // Exit if the deleted plugin is not this plugin.
+        }
+
+        $data = [
+            'action' => 'deleted',
+            'plugin' => $plugin,
+            'domain' => esc_url(home_url()), // Include the domain name in the payload.
+            'timestamp' => current_time('mysql'),
+        ];
+
+        self::trigger_webhook($data);
     }
 
     private function is_sm_plugin_api_call() {
