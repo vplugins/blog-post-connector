@@ -461,6 +461,11 @@ class Webhook {
         self::trigger_webhook($data);
     }
 
+    /**
+     * Checks if the current request is an Plugin API call.
+     *
+     * @return bool True if the request is an Plugin API call, false otherwise.
+     */
     private function is_sm_plugin_api_call() {
         // Retrieve the Authorization header
         $auth_header = isset($_SERVER['HTTP_AUTHORIZATION']) ? $_SERVER['HTTP_AUTHORIZATION'] : '';
