@@ -74,6 +74,13 @@ class Status {
         } else {
             $logo_url = $custom_logo;
         }
+
+        // Get all tags and categories
+        $categories = Globals::get_categories();
+        $tags = Globals::get_tags();
+
+        // Get all authors and who have the role of Author, Editor, or Administrator
+        $authors = Globals::get_authors();
     
         $data = [
             'site_details' => [
@@ -85,6 +92,9 @@ class Status {
                     'current' => $current_version,
                     'latest' => $latest_version,
                 ],
+                'categories' => $categories,
+                'tags' => $tags,
+                'authors' => $authors,
             ],
         ];
     
