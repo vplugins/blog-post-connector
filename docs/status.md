@@ -55,7 +55,10 @@ $http({
             "plugin_version": {
                 "current": "0.0.1",
                 "latest": "1.0.0Beta"
-            }
+            },
+            "categories" : "categories",
+            "tags" : "tags",
+            "authors" : "authors"
         }
     }
 }
