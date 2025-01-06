@@ -12,8 +12,8 @@ class Globals {
     /**
      * @const string PLUGIN_VERSION The current version of the plugin.
      */
-    const PLUGIN_VERSION = '1.0.0Beta';
-    const WEBHOOK_URL = 'https://webhook.site/b9fcec10-e0cd-43d2-bf05-e671cea83d10';
+    const PLUGIN_VERSION = '1.0.1';
+    const WEBHOOK_URL = 'https://social-posts-prod.apigateway.co/vplugin/webhook/blog-post';
 
     /**
      * Retrieves the plugin slug.
@@ -148,5 +148,27 @@ class Globals {
      */
     public static function get_webhook_url() {
         return self::WEBHOOK_URL;
+    }
+
+    /**
+     * Custom error log function.
+     *
+     * Logs errors to the debug.log file only when WP_DEBUG is true.
+     *
+     * @param mixed  $message The message or data to log.
+     * @param string $level   The log level (e.g., 'INFO', 'ERROR', 'DEBUG'). Default is 'DEBUG'.
+     */
+    public static function bp_error_log($message, $level = 'DEBUG') {
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            $output = '[' . current_time('Y-m-d H:i:s') . '] [' . $level . '] ';
+            
+            if (is_array($message) || is_object($message)) {
+                $output .= print_r($message, true);
+            } else {
+                $output .= $message;
+            }
+
+            error_log($output);
+        }
     }
 }

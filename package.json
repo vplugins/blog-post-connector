@@ -1,6 +1,6 @@
 {
     "name": "blog-post-connector",
-    "version": "1.0.0Beta",
+    "version": "1.0.1",
     "description": "A plugin to publish blogs to your WordPress website.",
     "author": "Website Pro, a WordPress hosting platform.",
     "scripts": {
