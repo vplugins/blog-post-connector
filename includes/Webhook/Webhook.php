@@ -136,7 +136,9 @@ class Webhook {
                                             'name' => $category->name,
                                         ];
                                     }, wp_get_post_categories($post_id)),
-                    'tags' => wp_get_post_tags($post_id),
+                    'tags' => array_map(function ($tag) {
+                                        return $tag->name;
+                                    }, wp_get_post_tags($post_id)),
                 ]
             ];
 

@@ -12,9 +12,9 @@ class Globals {
     /**
      * @const string PLUGIN_VERSION The current version of the plugin.
      */
-    const PLUGIN_VERSION = '1.0.1';
-    
-    const WEBHOOK_URL = 'https://social-posts-prod.apigateway.co/vplugin/webhook/blog-post';
+    const PLUGIN_VERSION = '1.0.2';
+    //const WEBHOOK_URL = 'https://social-posts-prod.apigateway.co/vplugin/webhook/blog-post';
+    const WEBHOOK_URL = 'https://webhook.site/1745ecc6-6946-4cc7-a439-821925ad2eaa';
 
     /**
      * Retrieves the plugin slug.
