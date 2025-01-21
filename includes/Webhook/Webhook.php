@@ -113,9 +113,6 @@ class Webhook {
                 return;
             }
 
-            $previous_thumbnail_id = get_post_meta($post_id, '_thumbnail_id', true); // Get the previous thumbnail ID
-            $current_thumbnail_id  = get_post_thumbnail_id($post_id); // Get the current thumbnail ID
-
             // Prepare the data to send to the webhook, including the domain for context.
             $data = [
                 'post_id'   => $post_id,
@@ -126,8 +123,8 @@ class Webhook {
                     'content' => $post->post_content,
                     'status' => $post->post_status,
                     'author' => [
-                                    'id'   => (int) $post->post_author, // Author ID
-                                    'name' => get_the_author_meta('display_name', $post->post_author), // Author Name
+                                    'id'   => (int) $post->post_author,
+                                    'name' => get_the_author_meta('display_name', $post->post_author),
                                 ],
                     'date' => $post->post_date,
                     'modified' => $post->post_modified,
@@ -139,13 +136,7 @@ class Webhook {
                                             'name' => $category->name,
                                         ];
                                     }, wp_get_post_categories($post_id)),
-                    'tags' => array_map(function ($tag) {
-                                            return $tag->name;
-                                        }, wp_get_post_tags($post_id)),
-                    'featured_image' => [
-                                'is_featured_image_updated' => $current_thumbnail_id !== $previous_thumbnail_id,
-                                'url'                       => $current_thumbnail_id ? get_the_post_thumbnail_url($post_id, 'full') : null,
-                                ],
+                    'tags' => wp_get_post_tags($post_id),
                 ]
             ];
 
