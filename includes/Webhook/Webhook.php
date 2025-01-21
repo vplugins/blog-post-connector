@@ -121,19 +121,20 @@ class Webhook {
                     'title' => $post->post_title,
                     'content' => $post->post_content,
                     'status' => $post->post_status,
-                    'author'      => [
-                                        'name' => get_the_author_meta('display_name', $post->post_author),
-                                        'id'   => $post->post_author, // Add author ID here
-                                    ],
+                    'author' => [
+                                    'id'   => $post->post_author, // Author ID
+                                    'name' => get_the_author_meta('display_name', $post->post_author), // Author Name
+                                ],
                     'date' => $post->post_date,
                     'modified' => $post->post_modified,
                     'permalink' => get_permalink($post_id),
-                    'categories'  => [
-                                        'ids'   => wp_get_post_categories($post_id),
-                                        'names' => array_map(function ($cat_id) {$category = get_category($cat_id);
-                                            return $category->name;
-                                        }, wp_get_post_categories($post_id))
-                                    ],
+                    'categories'  => array_map(function ($cat_id) {
+                                        $category = get_category($cat_id);
+                                        return [
+                                            'id'   => $category->term_id,
+                                            'name' => $category->name,
+                                        ];
+                                    }, wp_get_post_categories($post_id)),
                     'tags' => wp_get_post_tags($post_id),
                 ]
             ];
