@@ -17,7 +17,7 @@ class Webhook {
      * Initializes the Webhook class and sets up the webhook endpoint.
      */
     public function __construct() {
-        add_action('save_post', [$this, 'trigger_webhook_on_post_update'], 10, 3);
+        add_action('wp_after_insert_post', [$this, 'trigger_webhook_on_post_update'], 10, 3);
         add_action('before_delete_post', [$this, 'trigger_webhook_on_post_delete'], 10, 1);
         add_action('wp_trash_post', [$this, 'trigger_webhook_on_post_trash'], 10, 1);
         add_action('untrash_post', [$this, 'trigger_webhook_on_post_restore'], 10, 1);
@@ -113,6 +113,13 @@ class Webhook {
                 return;
             }
 
+            if (has_post_thumbnail($post_id)) {
+                $thumbnail_url = get_the_post_thumbnail_url($post_id);
+                error_log("Post $post_id has a thumbnail: $thumbnail_url");
+            } else {
+                error_log("Post $post_id does not have a thumbnail.");
+            }
+
             // Prepare the data to send to the webhook, including the domain for context.
             $data = [
                 'post_id'   => $post_id,
@@ -139,6 +146,7 @@ class Webhook {
                     'tags' => array_map(function ($tag) {
                                         return $tag->name;
                                     }, wp_get_post_tags($post_id)),
+                    'featured_image' => has_post_thumbnail($post_id) ? get_the_post_thumbnail_url($post_id) : null,
                 ]
             ];
 
