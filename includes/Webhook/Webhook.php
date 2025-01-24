@@ -113,13 +113,6 @@ class Webhook {
                 return;
             }
 
-            if (has_post_thumbnail($post_id)) {
-                $thumbnail_url = get_the_post_thumbnail_url($post_id);
-                error_log("Post $post_id has a thumbnail: $thumbnail_url");
-            } else {
-                error_log("Post $post_id does not have a thumbnail.");
-            }
-
             // Prepare the data to send to the webhook, including the domain for context.
             $data = [
                 'post_id'   => $post_id,
