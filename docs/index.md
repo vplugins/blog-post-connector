@@ -15,6 +15,7 @@ Welcome to the documentation for the **Blog Post Connector** plugin. This plugin
 	- [Get Post](get-post.md)
 	- [Get Authors](get-authors.md)
 	- [Get Categories](get-categories.md)
+	- [Get Tags](get-tags.md)
 - [FAQ](faq.md)
 - [Support](#support)
 
@@ -47,6 +48,7 @@ The Blog Post Connector plugin provides the following API endpoints:
 -  **Get Post**: Allows you to get the post details. [View Details](get-post.md)
 -  **Get Authors**: Retrieves a list of all authors. [View Details](get-authors.md)
 -  **Get Categories**: Retrieves a list of all categories. [View Details](get-categories.md)
+-  **Get Tags**: Retrieves a list of all tags. [View Details](get-tags.md)
 -  **Status**: Provides the current status of the plugin. [View Details](status.md)  
 
 ## FAQ
