@@ -14,7 +14,14 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4  # Updated to the latest version supporting Node.js 20
+      uses: actions/checkout@v4  # Latest version
+
+    - name: Cache Composer dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.composer/cache
+        key: composer-${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+        restore-keys: composer-${{ runner.os }}-
 
     - name: Set up PHP
       uses: shivammathur/setup-php@v2
@@ -22,13 +29,20 @@ jobs:
         php-version: '7.4'
         tools: composer
 
+    - name: Validate composer.lock exists
+      run: |
+        if [ ! -f "composer.lock" ]; then
+          echo "composer.lock is missing. Running 'composer update' first..."
+          composer update --no-dev
+        fi
+
     - name: Install Composer dependencies without dev
-      run: composer install --no-dev
+      run: |
+        COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --prefer-dist --optimize-autoloader
 
     - name: Get version from user input
       run: |
         VERSION=${{ github.event.inputs.version }}
-        # Ensure that the version is prefixed with "v" for a valid tag name
         if [[ $VERSION != v* ]]; then
           VERSION="v${VERSION}"
         fi
@@ -44,18 +58,18 @@ jobs:
 
     - name: Create Release
       id: create_release
-      uses: actions/create-release@v1  # Using the latest available stable version
+      uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
       with:
-        tag_name: ${{ env.VERSION }}  # Use the validated version tag
+        tag_name: ${{ env.VERSION }}
         release_name: Blog Post Connector Plugin ${{ env.VERSION }}
         body: "Release of Blog Post Connector plugin version ${{ env.VERSION }}."
         draft: false
         prerelease: false
 
     - name: Upload to Release
-      uses: actions/upload-release-asset@v1  # Using the latest available stable version
+      uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
       with:
