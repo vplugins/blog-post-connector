@@ -29,13 +29,6 @@ jobs:
         php-version: '7.4'
         tools: composer
 
-    - name: Validate composer.lock exists
-      run: |
-        if [ ! -f "composer.lock" ]; then
-          echo "composer.lock is missing. Running 'composer update' first..."
-          composer update --no-dev
-        fi
-
     - name: Install Composer dependencies without dev
       run: |
         COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --prefer-dist --optimize-autoloader
@@ -48,13 +41,16 @@ jobs:
         fi
         echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-    - name: Cleanup unnecessary files
+    - name: Prepare package directory with only dependencies
       run: |
-        rm -f composer.json composer.lock package.json package-lock.json README.md
+        mkdir package
+        cp -r vendor package/
+        cp composer.json composer.lock package/
 
-    - name: Zip the plugin
+    - name: Create ZIP package (dependencies only)
       run: |
-        zip -r blog-post-connector-package.zip . -x "*.git*" -x "*.github*" -x "*.yml" -x "phpunit.xml" -x "tests/**" -x "docs/**"
+        cd package
+        zip -r ../blog-post-connector-dependencies.zip . 
 
     - name: Create Release
       id: create_release
@@ -63,17 +59,17 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
       with:
         tag_name: ${{ env.VERSION }}
-        release_name: Blog Post Connector Plugin ${{ env.VERSION }}
-        body: "Release of Blog Post Connector plugin version ${{ env.VERSION }}."
+        release_name: Blog Post Connector Dependencies ${{ env.VERSION }}
+        body: "Release containing only dependencies for Blog Post Connector version ${{ env.VERSION }}."
         draft: false
         prerelease: false
 
-    - name: Upload to Release
+    - name: Upload ZIP to Release
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./blog-post-connector-package.zip
-        asset_name: blog-post-connector-package.zip
+        asset_path: ./blog-post-connector-dependencies.zip
+        asset_name: blog-post-connector-dependencies.zip
         asset_content_type: application/zip
