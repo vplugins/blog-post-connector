@@ -23,7 +23,7 @@ jobs:
         tools: composer
 
     - name: Install Composer dependencies without dev
-      run: composer install
+      run: composer install --no-dev
 
     - name: Get version from user input
       run: |
@@ -33,10 +33,6 @@ jobs:
           VERSION="v${VERSION}"
         fi
         echo "VERSION=$VERSION" >> $GITHUB_ENV
-
-    - name: Cleanup unnecessary files
-      run: |
-        rm -f composer.json composer.lock package.json package-lock.json README.md
 
     - name: Zip the plugin
       run: |
