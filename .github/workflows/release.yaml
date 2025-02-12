@@ -34,9 +34,17 @@ jobs:
         fi
         echo "VERSION=$VERSION" >> $GITHUB_ENV
 
+    - name: Prepare Build Directory
+      run: |
+        mkdir -p build/blog-post-connector
+        rsync -av . build/blog-post-connector \
+          --exclude=.git --exclude=.github --exclude=tests --exclude=docs \
+          --exclude=node_modules --exclude=*.yml --exclude=phpunit.xml
+
     - name: Zip the plugin
       run: |
-        zip -r blog-post-connector-package.zip . -x "*.git*" -x "*.github*" -x "*.yml" -x "phpunit.xml" -x "tests/**" -x "docs/**"
+        cd build
+        zip -r blog-post-connector-package.zip blog-post-connector
 
     - name: Create Release
       id: create_release
