@@ -23,7 +23,7 @@ jobs:
         tools: composer
 
     - name: Install Composer dependencies without dev
-      run: composer install --no-dev
+      run: composer install
 
     - name: Get version from user input
       run: |
