@@ -43,7 +43,7 @@ jobs:
         mkdir -p build/blog-post-connector
         rsync -av . build/blog-post-connector \
           --exclude=.git --exclude=.github --exclude=tests --exclude=docs \
-          --exclude=node_modules --exclude=phpunit.xml --exclude=*.yml \
+          --exclude=phpunit.xml --exclude=*.yml \
           --exclude=*.md
 
     - name: Zip the plugin
@@ -69,6 +69,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: build/blog-post-connector-package.zip  # ✅ Fixed path
+        asset_path: build/blog-post-connector-package.zip
         asset_name: blog-post-connector-package.zip
         asset_content_type: application/zip
