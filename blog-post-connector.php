@@ -27,6 +27,10 @@ use VPlugins\BlogPostConnector\Endpoints\{
     GetTags,
     Status
 };
+use VPlugins\BlogPostConnector\Middleware\LoggerMiddleware;
+
+// Register plugin activation hook to create logs table
+register_activation_hook(__FILE__, ['VPlugins\BlogPostConnector\Middleware\LoggerMiddleware', 'install']);
 
 /**
  * Endpoint Registry Class

@@ -6,6 +6,7 @@ use WP_REST_Request;
 use VPlugins\BlogPostConnector\Middleware\AuthMiddleware;
 use VPlugins\BlogPostConnector\Helper\Globals;
 use VPlugins\BlogPostConnector\Helper\Response;
+use VPlugins\BlogPostConnector\Middleware\LoggerMiddleware;
 
 /**
  * Class GetAuthors
@@ -65,6 +66,17 @@ class GetAuthors {
                 'num_posts' => count_user_posts($author->ID)
             ];
             $authorCount++;
+        }
+
+        // Log the request if logger is available
+        if (class_exists(LoggerMiddleware::class)) {
+            $logger = new LoggerMiddleware();
+            $logger->log($request, Response::success(
+                Globals::get_success_message('authors_retrieved'), 
+                [
+                    'authors' => $formattedAuthors
+                ]
+            ));
         }
 
         return Response::success(

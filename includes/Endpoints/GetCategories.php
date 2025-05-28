@@ -4,6 +4,7 @@ namespace VPlugins\BlogPostConnector\Endpoints;
 
 use WP_REST_Request;
 use VPlugins\BlogPostConnector\Middleware\AuthMiddleware;
+use VPlugins\BlogPostConnector\Middleware\LoggerMiddleware;
 use VPlugins\BlogPostConnector\Helper\Globals;
 use VPlugins\BlogPostConnector\Helper\Response;
 
@@ -11,8 +12,6 @@ use VPlugins\BlogPostConnector\Helper\Response;
  * Class GetCategories
  *
  * Registers a REST API endpoint for retrieving categories.
- *
- * @package VPlugins\BlogPostConnector\Endpoints
  */
 class GetCategories {
     /**
@@ -21,20 +20,21 @@ class GetCategories {
     protected $auth_middleware;
 
     /**
+     * @var LoggerMiddleware
+     */
+    protected $logger;
+
+    /**
      * GetCategories constructor.
-     *
-     * Initializes the AuthMiddleware instance and registers the REST API routes.
      */
     public function __construct() {
         $this->auth_middleware = new AuthMiddleware();
+        $this->logger = new LoggerMiddleware();
         add_action('rest_api_init', [$this, 'register_routes']);
     }
 
     /**
      * Registers the REST API route for retrieving categories.
-     *
-     * Adds a route for retrieving categories using a GET request.
-     * The route is registered under the namespace 'sm-connect/v1' and the endpoint '/categories'.
      */
     public function register_routes() {
         register_rest_route('sm-connect/v1', '/categories', [
@@ -47,11 +47,8 @@ class GetCategories {
     /**
      * Handles the request to retrieve categories.
      *
-     * Retrieves a list of categories, including their name, ID, and number of posts.
-     *
-     * @param WP_REST_Request $request The request object for retrieving categories.
-     * 
-     * @return \WP_REST_Response The response object containing the list of categories.
+     * @param WP_REST_Request $request The request object.
+     * @return \WP_REST_Response The response object.
      */
     public function get_categories(WP_REST_Request $request) {
         $categories = Globals::get_categories();
@@ -67,11 +64,14 @@ class GetCategories {
             $categoryCount++;
         }
 
-        return Response::success(
+        $response = Response::success(
             Globals::get_success_message('categories_retrieved'), 
-            [
-                'categories' => $formattedCategories
-            ]
+            ['categories' => $formattedCategories]
         );
+
+        // Log the request and response
+        $this->logger->log($request, $response);
+
+        return $response;
     }
 }
