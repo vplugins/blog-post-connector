@@ -14,7 +14,8 @@ if (!defined('ABSPATH')) {
 // Autoload the classes using Composer
 require_once __DIR__ . '/vendor/autoload.php';
 
-use VPlugins\BlogPostConnector\Auth\Token;
+use VPlugins\BlogPostConnector\Auth\TokenManager;
+use VPlugins\BlogPostConnector\Admin\TokenSettingsPage;
 use VPlugins\BlogPostConnector\Updater\Update;
 use VPlugins\BlogPostConnector\Webhook\Webhook;
 use VPlugins\BlogPostConnector\Endpoints\{
@@ -51,7 +52,8 @@ class EndpointRegistry {
         GetAuthors::class,
         GetCategories::class,
         Status::class,
-        Token::class,
+        TokenManager::class,
+        TokenSettingsPage::class,
         GetTags::class,
         GetPost::class
     ];

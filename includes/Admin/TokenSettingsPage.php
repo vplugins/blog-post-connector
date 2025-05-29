@@ -1,46 +1,17 @@
 <?php
 
-namespace VPlugins\BlogPostConnector\Auth;
+namespace VPlugins\BlogPostConnector\Admin;
 
-/**
- * Class Token
- *
- * Handles token generation, validation, and plugin settings page for the Blog Post Connector plugin.
- */
-class Token {
+use VPlugins\BlogPostConnector\Auth\TokenManager;
 
-    /**
-     * Token constructor.
-     *
-     * Initializes hooks for admin menu and settings.
-     */
+class TokenSettingsPage {
+    protected $tokenManager;
+
     public function __construct() {
-        // Hook into admin menu
+        $this->tokenManager = new TokenManager();
         add_action('admin_menu', [$this, 'add_settings_page']);
         add_action('admin_init', [$this, 'register_settings']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_media_uploader']);
-    }
-
-    /**
-     * Generates a new random token and saves it in the database.
-     *
-     * @return string The generated token.
-     */
-    public function generate_token() {
-        $token = bin2hex(random_bytes(16));
-        update_option('sm_post_connector_token', $token);
-        return $token;
-    }
-
-    /**
-     * Validates a given token against the stored token.
-     *
-     * @param string $token The token to validate.
-     * @return bool True if the token matches the stored token, false otherwise.
-     */
-    public function validate_token($token) {
-        $saved_token = get_option('sm_post_connector_token');
-        return hash_equals($saved_token, $token);
     }
 
     /**
@@ -305,7 +276,7 @@ class Token {
      */
     private function handle_generate_token_request() {
         if (isset($_POST['generate_new_token'])) {
-            $new_token = $this->generate_token();
+            $new_token = $this->tokenManager->generate_token();
             update_option('sm_post_connector_token', $new_token);
             // Reload the page to reflect the new token in the text box
             echo '<script>window.location.reload();</script>';
