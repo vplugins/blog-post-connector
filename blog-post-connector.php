@@ -15,7 +15,7 @@ if (!defined('ABSPATH')) {
 require_once __DIR__ . '/vendor/autoload.php';
 
 use VPlugins\BlogPostConnector\Auth\TokenManager;
-use VPlugins\BlogPostConnector\Admin\TokenSettingsPage;
+use VPlugins\BlogPostConnector\Admin\SettingsPageController;
 use VPlugins\BlogPostConnector\Updater\Update;
 use VPlugins\BlogPostConnector\Webhook\Webhook;
 use VPlugins\BlogPostConnector\Endpoints\{
@@ -53,7 +53,7 @@ class EndpointRegistry {
         GetCategories::class,
         Status::class,
         TokenManager::class,
-        TokenSettingsPage::class,
+        SettingsPageController::class,
         GetTags::class,
         GetPost::class
     ];
