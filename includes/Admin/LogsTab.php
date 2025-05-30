@@ -140,17 +140,58 @@ class LogsTab {
     }
 }
 
-// Download handler in your plugin bootstrap file
 add_action('admin_post_download_logs_json', function () {
     if (!current_user_can('manage_options')) {
         wp_die(__('Unauthorized', 'blog-post-connector'));
     }
 
     global $wpdb;
-    $table_name = $wpdb->prefix . 'sm_post_connector_logs';
 
+    $table_name = $wpdb->prefix . 'sm_post_connector_logs';
     $logs = $wpdb->get_results("SELECT * FROM $table_name ORDER BY timestamp DESC", ARRAY_A);
 
+    // Get all plugins and versions
+    if (!function_exists('get_plugins')) {
+        require_once ABSPATH . 'wp-admin/includes/plugin.php';
+    }
+    $all_plugins = get_plugins();
+    $plugin_list = [];
+    foreach ($all_plugins as $plugin_file => $plugin_data) {
+        $plugin_list[$plugin_file] = [
+            'Name'    => $plugin_data['Name'],
+            'Version' => $plugin_data['Version'],
+            'Status'  => is_plugin_active($plugin_file) ? 'Active' : 'Inactive',
+        ];
+    }
+
+    // Get active theme
+    $theme = wp_get_theme();
+
+    // Permalink structure
+    $permalink_structure = get_option('permalink_structure');
+
+    // Environment info
+    $env_info = [
+        'WP_Version'     => get_bloginfo('version'),
+        'PHP_Version'    => PHP_VERSION,
+        'Site_URL'       => site_url(),
+        'Home_URL'       => home_url(),
+        'Permalink_Type' => $permalink_structure ?: 'Plain',
+        'Theme'          => [
+            'Name'    => $theme->get('Name'),
+            'Version' => $theme->get('Version'),
+        ],
+        'Plugins'        => $plugin_list,
+    ];
+
+    // Compile output
+    $output = [
+        'generated_at' => current_time('mysql'),
+        'environment'  => $env_info,
+        'logs'         => $logs,
+    ];
+
+    // Send as downloadable JSON
     $filename = 'post-connector-logs-' . date('Y-m-d-H-i-s') . '.json';
 
     header('Content-Type: application/json');
@@ -158,6 +199,6 @@ add_action('admin_post_download_logs_json', function () {
     header('Pragma: no-cache');
     header('Expires: 0');
 
-    echo wp_json_encode($logs, JSON_PRETTY_PRINT);
+    echo wp_json_encode($output, JSON_PRETTY_PRINT);
     exit;
 });
