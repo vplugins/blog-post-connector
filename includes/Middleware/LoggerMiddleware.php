@@ -1,5 +1,7 @@
 <?php
+
 namespace VPlugins\BlogPostConnector\Middleware;
+
 use WP_REST_Request;
 use WP_Error;
 use wpdb;
@@ -8,9 +10,19 @@ use dbDelta;
 class LoggerMiddleware {
     private static bool $already_logged = false;
 
+    public function __construct() {
+        // Hook cleanup to admin_init (runs once per admin page load)
+        add_action('admin_init', [$this, 'cleanup_old_logs']);
+    }
+
     public function log(WP_REST_Request $request, $response) {
         if (self::$already_logged) {
             return; // Skip duplicate log
+        }
+
+        // Check if logging is enabled
+        if (!get_option('sm_post_connector_enable_logs')) {
+            return;
         }
 
         self::$already_logged = true;
@@ -49,6 +61,9 @@ class LoggerMiddleware {
         return $response;
     }
 
+    /**
+     * Create log table.
+     */
     public static function install() {
         global $wpdb;
 
@@ -69,5 +84,26 @@ class LoggerMiddleware {
         ) $charset_collate;";
 
         dbDelta($sql);
+    }
+
+    /**
+     * Removes old logs based on retention days set in plugin settings.
+     */
+    public function cleanup_old_logs() {
+        $retention_days = (int) get_option('sm_post_connector_log_retention_days', 30);
+
+        if ($retention_days <= 0) {
+            return; // Don't delete anything if retention is zero or invalid
+        }
+
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'sm_post_connector_logs';
+
+        $wpdb->query(
+            $wpdb->prepare(
+                "DELETE FROM $table_name WHERE timestamp < NOW() - INTERVAL %d DAY",
+                $retention_days
+            )
+        );
     }
 }
