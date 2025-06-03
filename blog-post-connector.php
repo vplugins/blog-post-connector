@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Blog Post Connector
  * Description: A plugin to publish blogs to your WordPress website.
- * Version: 1.0.2
+ * Version: 1.0.3
  * Author: Website Pro, a WordPress hosting platform.
  * Text Domain: blog-post-connector
  */
@@ -14,7 +14,8 @@ if (!defined('ABSPATH')) {
 // Autoload the classes using Composer
 require_once __DIR__ . '/vendor/autoload.php';
 
-use VPlugins\BlogPostConnector\Auth\Token;
+use VPlugins\BlogPostConnector\Auth\TokenManager;
+use VPlugins\BlogPostConnector\Admin\SettingsPageController;
 use VPlugins\BlogPostConnector\Updater\Update;
 use VPlugins\BlogPostConnector\Webhook\Webhook;
 use VPlugins\BlogPostConnector\Endpoints\{
@@ -27,6 +28,10 @@ use VPlugins\BlogPostConnector\Endpoints\{
     GetTags,
     Status
 };
+use VPlugins\BlogPostConnector\Middleware\LoggerMiddleware;
+
+// Register plugin activation hook to create logs table
+register_activation_hook(__FILE__, ['VPlugins\BlogPostConnector\Middleware\LoggerMiddleware', 'install']);
 
 /**
  * Endpoint Registry Class
@@ -47,7 +52,8 @@ class EndpointRegistry {
         GetAuthors::class,
         GetCategories::class,
         Status::class,
-        Token::class,
+        TokenManager::class,
+        SettingsPageController::class,
         GetTags::class,
         GetPost::class
     ];

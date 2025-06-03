@@ -6,6 +6,7 @@ use WP_REST_Request;
 use VPlugins\BlogPostConnector\Middleware\AuthMiddleware;
 use VPlugins\BlogPostConnector\Helper\Globals;
 use VPlugins\BlogPostConnector\Helper\Response;
+use VPlugins\BlogPostConnector\Middleware\LoggerMiddleware;
 
 /**
  * Class Status
@@ -99,6 +100,12 @@ class Status {
         ];
     
         $success_message = 'Status retrieved successfully.'; // Custom message
+
+        // Log the request and response if logger is available
+        if (class_exists(LoggerMiddleware::class)) {
+            $logger = new LoggerMiddleware();
+            $logger->log($request, Response::success($success_message, $data));
+        }
     
         // Use the Response helper for a standard format
         return Response::success($success_message, $data);

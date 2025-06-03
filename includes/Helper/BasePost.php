@@ -4,6 +4,7 @@ namespace VPlugins\BlogPostConnector\Helper;
 use WP_REST_Request;
 use WP_REST_Response;
 use VPlugins\BlogPostConnector\Middleware\AuthMiddleware;
+use VPlugins\BlogPostConnector\Middleware\LoggerMiddleware;
 use VPlugins\BlogPostConnector\Helper\Response;
 
 /**
@@ -19,12 +20,18 @@ abstract class BasePost {
     protected $auth_middleware;
 
     /**
+     * @var LoggerMiddleware Instance of LoggerMiddleware for logging requests and responses.
+     */
+    protected $logger;
+
+    /**
      * Constructor
      * 
      * Initializes the authentication middleware and registers the REST API routes.
      */
     public function __construct() {
         $this->auth_middleware = new AuthMiddleware();
+        $this->logger = new LoggerMiddleware();
         add_action('rest_api_init', [$this, 'register_routes']);
     }
 
@@ -46,13 +53,17 @@ abstract class BasePost {
         $post_id = $is_update ? $request->get_param('id') : null;
 
         if ($is_update && !$post_id) {
-            return Response::error('post_id_required', 400);
+            $response = Response::error('post_id_required', 400);
+            $this->logger->log($request, $response);
+            return $response;
         }
 
         if ($is_update) {
             $post = get_post($post_id);
             if (!$post) {
-                return Response::error('post_not_found', 404);
+                $response = Response::error('post_not_found', 404);
+                $this->logger->log($request, $response);
+                return $response;
             }
         }
 
@@ -65,89 +76,76 @@ abstract class BasePost {
         $tags = $request->get_param('tag');
         $featured_image_url = $request->get_param('featured_image');
 
-        // Get the category and tag parameters
-        $categories = $request->get_param('category');
-        $tags = $request->get_param('tag');
+        $categories_array = is_string($categories)
+            ? array_map('intval', array_filter(array_map('trim', explode(',', $categories))))
+            : (is_array($categories) ? array_map('intval', $categories) : []);
 
-        // Check if categories and tags are already arrays or comma-separated strings
-        if (is_string($categories)) {
-            $categories_array = array_map('intval', array_filter(array_map('trim', explode(',', $categories))));
-        } elseif (is_array($categories)) {
-            $categories_array = array_map('intval', $categories);
-        } else {
-            $categories_array = [];
-        }
+        $tags_array = is_string($tags)
+            ? array_filter(array_map('sanitize_text_field', array_map('trim', explode(',', $tags))))
+            : (is_array($tags) ? array_filter(array_map('sanitize_text_field', $tags)) : []);
 
-        if (is_string($tags)) {
-            $tags_array = array_filter(array_map('sanitize_text_field', array_map('trim', explode(',', $tags))));
-        } elseif (is_array($tags)) {
-            $tags_array = array_filter(array_map('sanitize_text_field', $tags));
-        } else {
-            $tags_array = [];
-        }
-
-        // Set default category if no categories are provided
         if (empty($categories_array) && !$is_update) {
-            // Retrieve the default category from settings, or set a fallback category
-            if (!$is_update) {
-                $default_category = get_option('sm_post_connector_default_category', 1); // Default to category ID 1 if not set
-                $categories_array = [$default_category];
-            }
+            $default_category = get_option('sm_post_connector_default_category', 1);
+            $categories_array = [$default_category];
         }
 
         if (empty($author_id) && !$is_update) {
-            $default_author = get_option('sm_post_connector_default_author', 1); // Default to author ID 1 if not set
-            $author_id = $default_author;
+            $author_id = get_option('sm_post_connector_default_author', 1);
         }
 
-        // Validate status if provided
         $valid_statuses = ['publish', 'future', 'draft'];
         if ($status && !in_array($status, $valid_statuses)) {
-            return Response::error('invalid_post_status', 400);
+            $response = Response::error('invalid_post_status', 400);
+            $this->logger->log($request, $response);
+            return $response;
         }
 
-        // Validate date if status is 'future'
         if ($status === 'future' && empty($date)) {
-            return Response::error('date_required_for_future_posts', 400);
+            $response = Response::error('date_required_for_future_posts', 400);
+            $this->logger->log($request, $response);
+            return $response;
         }
 
-        // Validate date if status is 'publish' and date is in the future
         if ($status === 'publish' && !empty($date) && strtotime($date) > time()) {
-            return Response::error('date_for_publish_status_must_be_past', 400);
+            $response = Response::error('date_for_publish_status_must_be_past', 400);
+            $this->logger->log($request, $response);
+            return $response;
         }
 
-        // Check for duplicate post title if creating a new post
         if (!$is_update && $title && get_page_by_title($title, OBJECT, 'post')) {
-            return Response::error('post_with_title_exists', 400);
+            $response = Response::error('post_with_title_exists', 400);
+            $this->logger->log($request, $response);
+            return $response;
         }
 
-        // Check if the author ID exists if provided
         if (!get_user_by('ID', $author_id)) {
-            return Response::error('invalid_author_id', 400);
+            $response = Response::error('invalid_author_id', 400);
+            $this->logger->log($request, $response);
+            return $response;
         }
 
         $attachment_id = 0;
         if (!empty($featured_image_url)) {
             $image_data = $this->download_image($featured_image_url);
             if ($image_data['status'] === 'error') {
-                return Response::error($image_data['message'], 400);
+                $response = Response::error($image_data['message'], 400);
+                $this->logger->log($request, $response);
+                return $response;
             }
             $attachment_id = $this->upload_image($image_data['file_path']);
         }
 
-        // Prepare the post data, but only include fields that are provided in the request
         $post_data = [
-            'post_title'   => $title ? sanitize_text_field($title) : $post->post_title,
-            'post_content' => $content ? wp_kses_post($content) : $post->post_content,
-            'post_status'  => $status ? $status : $post->post_status,
-            'post_date'    => ($status === 'future') ? date('Y-m-d H:i:s', strtotime($date)) : current_time('mysql'),
-            'post_author'  => $author_id,
-            'post_category'=> $categories_array,
-            'tags_input'   => $tags_array,
-            'meta_input'   => $is_update ? ['updated_by_sm_plugin' => true] : ['added_by_sm_plugin' => true]
+            'post_title'    => $title ? sanitize_text_field($title) : $post->post_title,
+            'post_content'  => $content ? wp_kses_post($content) : $post->post_content,
+            'post_status'   => $status ? $status : $post->post_status,
+            'post_date'     => ($status === 'future') ? date('Y-m-d H:i:s', strtotime($date)) : current_time('mysql'),
+            'post_author'   => $author_id,
+            'post_category' => $categories_array,
+            'tags_input'    => $tags_array,
+            'meta_input'    => $is_update ? ['updated_by_sm_plugin' => true] : ['added_by_sm_plugin' => true]
         ];
 
-        // If updating, set the post ID
         if ($is_update) {
             $post_data['ID'] = $post_id;
             $result_post_id = wp_update_post($post_data);
@@ -155,21 +153,22 @@ abstract class BasePost {
             $result_post_id = wp_insert_post($post_data);
         }
 
-        // Set the featured image if available
         if ($result_post_id && $attachment_id) {
             set_post_thumbnail($result_post_id, $attachment_id);
         }
 
-        // Return success or failure response
         if ($result_post_id) {
             $post_url = get_permalink($result_post_id);
-            return Response::success(
+            $response = Response::success(
                 $is_update ? 'post_updated_successfully' : 'post_created_successfully',
                 ['post_id' => $result_post_id, 'post_url' => $post_url]
             );
+        } else {
+            $response = Response::error($is_update ? 'failed_to_update_post' : 'failed_to_create_post', 500);
         }
 
-        return Response::error($is_update ? 'failed_to_update_post' : 'failed_to_create_post', 500);
+        $this->logger->log($request, $response);
+        return $response;
     }
 
     /**

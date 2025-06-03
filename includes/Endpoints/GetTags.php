@@ -4,6 +4,7 @@ namespace VPlugins\BlogPostConnector\Endpoints;
 
 use WP_REST_Request;
 use VPlugins\BlogPostConnector\Middleware\AuthMiddleware;
+use VPlugins\BlogPostConnector\Middleware\LoggerMiddleware;
 use VPlugins\BlogPostConnector\Helper\Globals;
 use VPlugins\BlogPostConnector\Helper\Response;
 
@@ -11,8 +12,6 @@ use VPlugins\BlogPostConnector\Helper\Response;
  * Class GetTags
  *
  * Registers a REST API endpoint for retrieving tags.
- *
- * @package VPlugins\BlogPostConnector\Endpoints
  */
 class GetTags {
     /**
@@ -21,20 +20,21 @@ class GetTags {
     protected $auth_middleware;
 
     /**
+     * @var LoggerMiddleware
+     */
+    protected $logger;
+
+    /**
      * GetTags constructor.
-     *
-     * Initializes the AuthMiddleware instance and registers the REST API routes.
      */
     public function __construct() {
         $this->auth_middleware = new AuthMiddleware();
+        $this->logger = new LoggerMiddleware();
         add_action('rest_api_init', [$this, 'register_routes']);
     }
 
     /**
      * Registers the REST API route for retrieving tags.
-     *
-     * Adds a route for retrieving tags using a GET request.
-     * The route is registered under the namespace 'sm-connect/v1' and the endpoint '/tags'.
      */
     public function register_routes() {
         register_rest_route('sm-connect/v1', '/tags', [
@@ -47,11 +47,8 @@ class GetTags {
     /**
      * Handles the request to retrieve tags.
      *
-     * Retrieves a list of tags, including their name, ID, and number of posts.
-     *
-     * @param WP_REST_Request $request The request object for retrieving tags.
-     * 
-     * @return \WP_REST_Response The response object containing the list of tags.
+     * @param WP_REST_Request $request The request object.
+     * @return \WP_REST_Response The response object.
      */
     public function get_tags(WP_REST_Request $request) {
         $tags = Globals::get_tags();
@@ -67,11 +64,16 @@ class GetTags {
             $tagCount++;
         }
 
-        return Response::success(
+        $response = Response::success(
             Globals::get_success_message('tags_retrieved'),
             [
                 'tags' => $formattedTags
             ]
         );
+
+        // Log the request and response
+        $this->logger->log($request, $response);
+
+        return $response;
     }
 }
