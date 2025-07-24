@@ -2,7 +2,7 @@
 
 namespace VPlugins\BlogPostConnector\Tests\Auth;
 
-use VPlugins\BlogPostConnector\Auth\Token;
+use VPlugins\BlogPostConnector\Auth\TokenManager;
 use WP_Mock\Tools\TestCase;
 
 class TokenTest extends TestCase {
@@ -11,7 +11,7 @@ class TokenTest extends TestCase {
 
     public function setUp(): void {
         \WP_Mock::setUp();
-        $this->token = new Token();
+        $this->token = new TokenManager();
     }
 
     public function tearDown(): void {
