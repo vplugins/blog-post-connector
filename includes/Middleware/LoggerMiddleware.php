@@ -5,7 +5,6 @@ namespace VPlugins\BlogPostConnector\Middleware;
 use WP_REST_Request;
 use WP_Error;
 use wpdb;
-use dbDelta;
 
 class LoggerMiddleware {
     private static bool $already_logged = false;

@@ -33,6 +33,28 @@ class Update {
         add_filter('pre_set_site_transient_update_plugins', [$this, 'check_for_update'], 10, 1);
         add_filter('plugins_api', [$this, 'plugins_api_handler'], 10, 3);
         add_filter('upgrader_post_install', [$this, 'after_install'], 10, 3);
+        
+        // Check for database updates on init
+        add_action('init', [$this, 'check_database_updates']);
+    }
+
+    /**
+     * Checks and performs any necessary database updates.
+     */
+    public function check_database_updates() {
+        $installed_version = get_option('sm_post_connector_db_version', '0');
+        $current_version = Globals::get_version();
+
+        // If installed version is lower than current version or doesn't exist
+        if (version_compare($installed_version, $current_version, '<')) {
+            // Ensure logs table exists
+            if (version_compare($installed_version, '1.0.3', '<')) {
+                \VPlugins\BlogPostConnector\Middleware\LoggerMiddleware::install();
+            }
+
+            // Update the stored database version
+            update_option('sm_post_connector_db_version', $current_version);
+        }
     }
 
     /**
@@ -105,6 +127,9 @@ class Update {
         $plugin_folder = WP_PLUGIN_DIR . '/' . dirname($this->plugin_file);
         $wp_filesystem->move($result['destination'], $plugin_folder);
         $result['destination'] = $plugin_folder;
+
+        // Run database updates after plugin update
+        $this->check_database_updates();
 
         activate_plugin($this->plugin_file);
 
