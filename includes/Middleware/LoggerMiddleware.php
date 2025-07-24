@@ -14,14 +14,37 @@ class LoggerMiddleware {
         add_action('admin_init', [$this, 'cleanup_old_logs']);
     }
 
+    /**
+     * Check if the logs table exists and create it if it doesn't
+     *
+     * @return bool True if table exists or was created successfully
+     */
+    private static function ensure_table_exists() {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'sm_post_connector_logs';
+        
+        if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") !== $table_name) {
+            // Table doesn't exist, create it
+            self::install();
+        }
+        
+        // Verify table exists after potential creation
+        return $wpdb->get_var("SHOW TABLES LIKE '$table_name'") === $table_name;
+    }
+
     public function log(WP_REST_Request $request, $response) {
         if (self::$already_logged) {
-            return; // Skip duplicate log
+            return; // Skip if already logged
         }
 
         // Check if logging is enabled
         if (!get_option('sm_post_connector_enable_logs')) {
             return;
+        }
+
+        // Ensure table exists before logging
+        if (!self::ensure_table_exists()) {
+            return; // Skip if table creation failed
         }
 
         self::$already_logged = true;
@@ -89,6 +112,11 @@ class LoggerMiddleware {
      * Removes old logs based on retention days set in plugin settings.
      */
     public function cleanup_old_logs() {
+        // Ensure table exists before cleanup
+        if (!self::ensure_table_exists()) {
+            return;
+        }
+
         $retention_days = (int) get_option('sm_post_connector_log_retention_days', 30);
 
         if ($retention_days <= 0) {
