@@ -55,7 +55,7 @@ class EndpointRegistry {
         TokenManager::class,
         SettingsPageController::class,
         GetTags::class,
-        GetPost::class
+        GetPost::class,
     ];
 
     /**
@@ -75,3 +75,15 @@ class EndpointRegistry {
 
 // Initialize the plugin endpoints
 EndpointRegistry::initialize();
+
+// Show a warning in Network Admin if plugin is used in a Multisite
+add_action('network_admin_notices', function () {
+    if (is_multisite() && is_network_admin() && current_user_can('manage_network_plugins')) {
+        $screen = get_current_screen();
+        if ($screen && $screen->id === 'plugins-network') {
+            echo '<div class="notice notice-warning is-dismissible">';
+            echo '<p><strong>SM Blog Post plugin is not currently compatible with WordPress Multisite.</strong></p>';
+            echo '</div>';
+        }
+    }
+});
