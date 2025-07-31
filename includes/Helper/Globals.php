@@ -171,4 +171,25 @@ class Globals {
             error_log($output);
         }
     }
+
+    /**
+     * Check if the site's permalink structure is set to "Plain".
+     *
+     * @return bool Returns true if permalinks are set to plain (i.e., no custom structure), false otherwise.
+     */
+    public static function isPermalinkPlain(): bool {
+        return get_option('permalink_structure') === '';
+    }
+    
+    /**
+     * Fix the permalink structure by setting it to "/%postname%/".
+     * Also flushes rewrite rules to ensure changes take effect immediately.
+     *
+     * This is useful when the current structure is plain and needs to be updated
+     * for better SEO or to support features that depend on pretty permalinks.
+     */
+    public static function fixPermalink(): void {
+        update_option('permalink_structure', '/%postname%/');
+        flush_rewrite_rules();
+    }
 }
