@@ -26,9 +26,11 @@ class AdminNotices {
         $permalink_structure = get_option('permalink_structure');
         if ($permalink_structure !== '/%postname%/') {
             $fix_url = wp_nonce_url(admin_url('admin-post.php?action=fix_permalink_structure'), 'fix_permalink');
-            echo '<div class="notice notice-error">';
-            echo '<p><strong>Warning:</strong> The permalink structure is not set to "Post name". This may cause routing issues for the Blog Post Connector plugin.</p>';
-            echo '<p><a href="' . esc_url($fix_url) . '" class="button button-primary">Fix Permalink Structure</a></p>';
+            echo '<div class="notice notice-warning">';
+            echo '<p><strong>Notice:</strong> The current permalink structure is set to <em>"Plain"</em>, which is not compatible with this plugin’s API routing.</p>';
+            echo '<p>To ensure proper functionality, it’s recommended to switch to the <strong>"Post name"</strong> structure.<br>';
+            echo 'You can update it by clicking <a class="button button-primary" href="' . esc_url($fix_url) . '">here</a>.</p>';
+            echo '<p style="color: #d63638;"><strong>Caution:</strong> Changing the permalink structure may impact existing URLs on your site. Please proceed carefully.</p>';
             echo '</div>';
         }
     }
