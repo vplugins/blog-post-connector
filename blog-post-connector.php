@@ -77,3 +77,22 @@ class EndpointRegistry {
 
 // Initialize the plugin endpoints
 EndpointRegistry::initialize();
+
+// Block runtime execution on multisite
+add_action('admin_init', function () {
+    if (is_multisite()) {
+        // Show admin error
+        add_action('admin_notices', function () {
+            echo '<div class="notice notice-error is-dismissible"><p><strong>SM Blog Post Connector:</strong> This plugin is not compatible with WordPress Multisite and has been deactivated.</p></div>';
+        });
+
+        // Deactivate plugin if active
+        deactivate_plugins(plugin_basename(__FILE__));
+    }
+});
+
+// Load plugin only if not multisite
+if (!is_multisite()) {
+    require_once plugin_dir_path(__FILE__) . 'includes/Admin/AdminNotices.php';
+    new \VPlugins\BlogPostConnector\Admin\AdminNotices();
+}
