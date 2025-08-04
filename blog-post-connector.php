@@ -78,16 +78,15 @@ class EndpointRegistry {
 // Initialize the plugin endpoints
 EndpointRegistry::initialize();
 
-// Block runtime execution on multisite
-add_action('admin_init', function () {
+// Block activation on multisite
+register_activation_hook(__FILE__, function () {
     if (is_multisite()) {
-        // Show admin error
-        add_action('admin_notices', function () {
-            echo '<div class="notice notice-error is-dismissible"><p><strong>Blog Post Connector:</strong> This plugin is not compatible with WordPress Multisite and has been deactivated.</p></div>';
-        });
-
-        // Deactivate plugin if active
-        deactivate_plugins(plugin_basename(__FILE__));
+        deactivate_plugins(plugin_basename(__FILE__), true); // silent
+        wp_die(
+            '<strong>Blog Post Connector:</strong> This plugin is not compatible with WordPress multisite installations and has been deactivated. <br><br><a href="' . esc_url(admin_url('plugins.php')) . '">Go back to Plugins</a>',
+            'Plugin Deactivated',
+            ['back_link' => false]
+        );
     }
 });
 
