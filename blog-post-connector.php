@@ -83,7 +83,7 @@ add_action('admin_init', function () {
     if (is_multisite()) {
         // Show admin error
         add_action('admin_notices', function () {
-            echo '<div class="notice notice-error is-dismissible"><p><strong>SM Blog Post Connector:</strong> This plugin is not compatible with WordPress Multisite and has been deactivated.</p></div>';
+            echo '<div class="notice notice-error is-dismissible"><p><strong>Blog Post Connector:</strong> This plugin is not compatible with WordPress Multisite and has been deactivated.</p></div>';
         });
 
         // Deactivate plugin if active
@@ -91,8 +91,13 @@ add_action('admin_init', function () {
     }
 });
 
-// Load plugin only if not multisite
+// Load AdminNotices only on single site
 if (!is_multisite()) {
     require_once plugin_dir_path(__FILE__) . 'includes/Admin/AdminNotices.php';
-    new \VPlugins\BlogPostConnector\Admin\AdminNotices();
+
+    add_action('plugins_loaded', function () {
+        if (class_exists('\VPlugins\BlogPostConnector\Admin\AdminNotices')) {
+            new \VPlugins\BlogPostConnector\Admin\AdminNotices();
+        }
+    });
 }

@@ -3,7 +3,12 @@
 namespace VPlugins\BlogPostConnector\Admin;
 
 class AdminNotices {
+    private static bool $initialized = false;
+
     public function __construct() {
+        if (self::$initialized || is_multisite()) return;
+        self::$initialized = true;
+
         add_action('admin_notices', [$this, 'permalinkNotice']);
         add_action('admin_post_fix_permalink_structure', [$this, 'fixPermalinkStructure']);
     }
@@ -24,7 +29,7 @@ class AdminNotices {
     }
 
     public function fixPermalinkStructure() {
-        if (!current_user_can('manage_options') || !check_admin_referer('fix_permalink')) {
+        if (!current_user_can('manage_options') || !check_admin_referer('fix_permalink') || is_multisite()) {
             wp_die('You are not allowed to perform this action.', 'Error', ['response' => 403]);
         }
 
