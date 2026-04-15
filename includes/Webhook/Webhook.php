@@ -129,13 +129,16 @@ class Webhook {
                     'date' => $post->post_date,
                     'modified' => $post->post_modified,
                     'permalink' => get_permalink($post_id),
-                    'categories'  => array_map(function ($cat_id) {
+                    'categories'  => array_values(array_filter(array_map(function ($cat_id) {
                                         $category = get_category($cat_id);
+                                        if (!$category || is_wp_error($category)) {
+                                            return null;
+                                        }
                                         return [
                                             'id'   => $category->term_id,
                                             'name' => $category->name,
                                         ];
-                                    }, wp_get_post_categories($post_id)),
+                                    }, wp_get_post_categories($post_id)))),
                     'tags' => array_map(function ($tag) {
                                         return $tag->name;
                                     }, wp_get_post_tags($post_id)),
@@ -251,6 +254,9 @@ class Webhook {
      */
     public function trigger_webhook_on_category_create($term_id) {
         $category = get_term($term_id);
+        if (!$category || is_wp_error($category)) {
+            return;
+        }
         $data = [
             'action' => 'category_created',
             'domain' => esc_url(home_url()),
@@ -271,6 +277,9 @@ class Webhook {
      */
     public function trigger_webhook_on_category_update($term_id) {
         $category = get_term($term_id);
+        if (!$category || is_wp_error($category)) {
+            return;
+        }
         $data = [
             'action' => 'category_updated',
             'domain' => esc_url(home_url()),
@@ -305,6 +314,9 @@ class Webhook {
      */
     public function trigger_webhook_on_tag_create($term_id) {
         $tag = get_term($term_id);
+        if (!$tag || is_wp_error($tag)) {
+            return;
+        }
         $data = [
             'action' => 'tag_created',
             'domain' => esc_url(home_url()),
@@ -325,6 +337,9 @@ class Webhook {
      */
     public function trigger_webhook_on_tag_update($term_id) {
         $tag = get_term($term_id);
+        if (!$tag || is_wp_error($tag)) {
+            return;
+        }
         $data = [
             'action' => 'tag_updated',
             'domain' => esc_url(home_url()),

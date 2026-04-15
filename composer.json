@@ -17,12 +17,12 @@
     },
     "scripts": {
         "lint": [
-        "phpcs . --runtime-set testVersion 7.4-"
+        "phpcs . --runtime-set testVersion 7.4-8.4"
         ],
         "lint-fix": [
         "phpcbf ."
         ],
-        "phpcs:compat": "vendor/bin/phpcs simple-local-avatars.php includes --standard=PHPCompatibilityWP --extensions=php --runtime-set testVersion 7.4-"
+        "phpcs:compat": "vendor/bin/phpcs includes --standard=PHPCompatibilityWP --extensions=php --runtime-set testVersion 7.4-8.4"
     },
     "minimum-stability": "dev",
     "config": {

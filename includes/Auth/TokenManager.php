@@ -29,8 +29,8 @@ class TokenManager {
      * @return bool True if the token matches the stored token, false otherwise.
      */
     public function validate_token($token) {
-        $saved_token = get_option('sm_post_connector_token');
-        return hash_equals($saved_token, $token);
+        $saved_token = (string) get_option('sm_post_connector_token', '');
+        return !empty($saved_token) && hash_equals($saved_token, (string) $token);
     }
 
 }

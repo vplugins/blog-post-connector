@@ -75,6 +75,7 @@ abstract class BasePost {
         $categories = $request->get_param('category');
         $tags = $request->get_param('tag');
         $featured_image_url = $request->get_param('featured_image');
+        $slug = $request->get_param('slug');
 
         $categories_array = is_string($categories)
             ? array_map('intval', array_filter(array_map('trim', explode(',', $categories))))
@@ -112,10 +113,19 @@ abstract class BasePost {
             return $response;
         }
 
-        if (!$is_update && $title && get_page_by_title($title, OBJECT, 'post')) {
-            $response = Response::error('post_with_title_exists', 400);
-            $this->logger->log($request, $response);
-            return $response;
+        if (!$is_update && $title) {
+            $existing = new \WP_Query([
+                'post_type'      => 'post',
+                'title'          => $title,
+                'posts_per_page' => 1,
+                'fields'         => 'ids',
+                'no_found_rows'  => true,
+            ]);
+            if ($existing->have_posts()) {
+                $response = Response::error('post_with_title_exists', 400);
+                $this->logger->log($request, $response);
+                return $response;
+            }
         }
 
         if (!get_user_by('ID', $author_id)) {
@@ -139,12 +149,16 @@ abstract class BasePost {
             'post_title'    => $title ? sanitize_text_field($title) : $post->post_title,
             'post_content'  => $content ? wp_kses_post($content) : $post->post_content,
             'post_status'   => $status ? $status : $post->post_status,
-            'post_date'     => ($status === 'future') ? date('Y-m-d H:i:s', strtotime($date)) : current_time('mysql'),
+            'post_date'     => ($status === 'future' && ($ts = strtotime((string) $date)) !== false) ? date('Y-m-d H:i:s', $ts) : current_time('mysql'),
             'post_author'   => $author_id,
             'post_category' => $categories_array,
             'tags_input'    => $tags_array,
             'meta_input'    => $is_update ? ['updated_by_sm_plugin' => true] : ['added_by_sm_plugin' => true]
         ];
+
+        if (!empty($slug)) {
+            $post_data['post_name'] = sanitize_title($slug);
+        }
 
         if ($is_update) {
             $post_data['ID'] = $post_id;
