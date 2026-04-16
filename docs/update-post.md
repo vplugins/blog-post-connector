@@ -30,6 +30,7 @@ To update a post, make a `POST` request with the required parameters included in
 | status           | string | The new status of the post (e.g., `publish`). | 
 | author           | int    | The ID of the author of the post.             | 
 | featured_image   | string | URL of the new featured image for the post.   | 
+| slug             | string | Optional. Custom permalink slug. If omitted, the existing slug is preserved. | 
 
 ### Example 
 
@@ -47,7 +48,8 @@ $http({
         content: 'Updated',
         status: 'publish',
         author: 1,
-        featured_image: 'https://cdn.pixabay.com/photo/2018/07/10/21/53/tournament-3529744_1280.jpg'
+        featured_image: 'https://cdn.pixabay.com/photo/2018/07/10/21/53/tournament-3529744_1280.jpg',
+        slug: 'renamed-slug'
     }
 }).then(function successCallback(response) {
     console.log('Post updated:', response.data.data);

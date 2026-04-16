@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.5]
+- Added optional `slug` parameter to Create Post and Update Post endpoints for custom permalinks.
+- PHP 8.4 compatibility: hardened token validation, replaced deprecated `get_page_by_title()` with `WP_Query`, guarded `strtotime()`/`date()` and term lookups against null/false returns.
+- Updated PHPCS lint range to `7.4-8.4`.
+
 ## [1.0.4]
 - Display a warning indicating that the plugin is not compatible with WordPress Multisite installations.
 

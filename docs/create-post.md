@@ -28,6 +28,7 @@ To create a new post, make a `POST` request with the required parameters include
 | status            | string | The status of the post (e.g., `publish`).    |
 | author            | int    | The ID of the author of the post.            |
 | featured_image    | string | URL of the new featured image for the post.  |
+| slug              | string | Optional. Custom permalink slug. If omitted, WordPress generates one from the title. |
 
 ### Example 
 
@@ -43,7 +44,8 @@ $http({
         title: 'Sample Title',
         content: 'Sample content',
         status: 'publish',
-        author: 1
+        author: 1,
+        slug: 'my-custom-slug'
     }
 }).then(function successCallback(response) {
     console.log('Post created:', response.data.data);
