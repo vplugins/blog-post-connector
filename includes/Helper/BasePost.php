@@ -117,6 +117,7 @@ abstract class BasePost {
             $existing = new \WP_Query([
                 'post_type'      => 'post',
                 'title'          => $title,
+                'post_status'    => get_post_stati(),
                 'posts_per_page' => 1,
                 'fields'         => 'ids',
                 'no_found_rows'  => true,
