@@ -107,6 +107,12 @@ abstract class BasePost {
             return $response;
         }
 
+        if ($status === 'future' && !empty($date) && strtotime((string) $date) === false) {
+            $response = Response::error('invalid_date_format', 400);
+            $this->logger->log($request, $response);
+            return $response;
+        }
+
         if ($status === 'publish' && !empty($date) && strtotime($date) > time()) {
             $response = Response::error('date_for_publish_status_must_be_past', 400);
             $this->logger->log($request, $response);

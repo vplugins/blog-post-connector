@@ -129,6 +129,7 @@ class Globals {
             'missing_required_parameters' => __('Missing required parameters', 'blog-post-connector'),
             'invalid_post_status' => __('Invalid post status', 'blog-post-connector'),
             'date_required_for_future_posts' => __('Date is required for future posts', 'blog-post-connector'),
+            'invalid_date_format' => __('Invalid date format for future post', 'blog-post-connector'),
             'date_for_publish_status_must_be_past' => __('Date for publish status must be in the past', 'blog-post-connector'),
             'post_with_title_exists' => __('A post with the same title already exists', 'blog-post-connector'),
             'post_updated_successfully' => __('Post updated successfully', 'blog-post-connector'),
