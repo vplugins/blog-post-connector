@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Blog Post Connector
  * Description: A plugin to publish blogs to your WordPress website.
- * Version: 1.0.5
+ * Version: 1.0.6
  * Author: Website Pro, a WordPress hosting platform.
  * Text Domain: blog-post-connector
  */
@@ -26,7 +26,8 @@ use VPlugins\BlogPostConnector\Endpoints\{
     GetAuthors,
     GetCategories,
     GetTags,
-    Status
+    Status,
+    WebhookControl
 };
 use VPlugins\BlogPostConnector\Middleware\LoggerMiddleware;
 
@@ -56,6 +57,7 @@ class EndpointRegistry {
         SettingsPageController::class,
         GetTags::class,
         GetPost::class,
+        WebhookControl::class,
     ];
 
     /**

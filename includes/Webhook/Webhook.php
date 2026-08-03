@@ -3,6 +3,7 @@
 namespace VPlugins\BlogPostConnector\Webhook;
 
 use VPlugins\BlogPostConnector\Helper\Globals;
+use VPlugins\BlogPostConnector\Endpoints\WebhookControl;
 
 /**
  * Class Webhook
@@ -46,6 +47,11 @@ class Webhook {
      * @return void
      */
     public static function trigger_webhook($data = []) {
+        if (!WebhookControl::is_enabled()) {
+            GLOBALS::bp_error_log('Webhook not triggered: webhook delivery is disabled.');
+            return; // Exit if webhook delivery has been disabled by SM.
+        }
+
         $webhook_url = Globals::get_webhook_url();
 
         if (empty($webhook_url)) {

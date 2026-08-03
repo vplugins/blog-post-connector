@@ -12,7 +12,7 @@ class Globals {
     /**
      * @const string PLUGIN_VERSION The current version of the plugin.
      */
-    const PLUGIN_VERSION = '1.0.5';
+    const PLUGIN_VERSION = '1.0.6';
     const WEBHOOK_URL = 'https://social-posts-prod.apigateway.co/vplugin/webhook/blog-post';
 
     /**
@@ -136,6 +136,8 @@ class Globals {
             'post_created_successfully' => __('Post created successfully', 'blog-post-connector'),
             'failed_to_update_post' => __('Failed to update post', 'blog-post-connector'),
             'failed_to_create_post' => __('Failed to create post', 'blog-post-connector'),
+            'webhook_enabled' => __('Webhook delivery enabled', 'blog-post-connector'),
+            'webhook_disabled' => __('Webhook delivery disabled', 'blog-post-connector'),
             'error' => __('An error occurred', 'blog-post-connector')
         ];
 
