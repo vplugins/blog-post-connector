@@ -16,6 +16,11 @@ class Globals {
     const WEBHOOK_URL = 'https://social-posts-prod.apigateway.co/vplugin/webhook/blog-post';
 
     /**
+     * @const string WEBHOOK_ENABLED_OPTION The option storing whether webhook delivery is enabled.
+     */
+    const WEBHOOK_ENABLED_OPTION = 'sm_post_connector_webhook_enabled';
+
+    /**
      * Retrieves the plugin slug.
      *
      * @return string The plugin slug.
@@ -138,6 +143,7 @@ class Globals {
             'failed_to_create_post' => __('Failed to create post', 'blog-post-connector'),
             'webhook_enabled' => __('Webhook delivery enabled', 'blog-post-connector'),
             'webhook_disabled' => __('Webhook delivery disabled', 'blog-post-connector'),
+            'webhook_state_update_failed' => __('Failed to update webhook delivery state', 'blog-post-connector'),
             'error' => __('An error occurred', 'blog-post-connector')
         ];
 
@@ -151,6 +157,32 @@ class Globals {
      */
     public static function get_webhook_url() {
         return self::WEBHOOK_URL;
+    }
+
+    /**
+     * Determines whether webhook delivery is currently enabled.
+     *
+     * Delivery is enabled by default so existing connections keep working
+     * until Social Marketing explicitly disables them.
+     *
+     * @return bool True if webhook delivery is enabled, false otherwise.
+     */
+    public static function is_webhook_enabled() {
+        return get_option(self::WEBHOOK_ENABLED_OPTION, '1') === '1';
+    }
+
+    /**
+     * Persists whether webhook delivery is enabled.
+     *
+     * @param bool $enabled Whether webhook delivery should be enabled.
+     * @return bool True if the stored state matches the requested state after writing.
+     */
+    public static function set_webhook_enabled($enabled) {
+        update_option(self::WEBHOOK_ENABLED_OPTION, $enabled ? '1' : '0');
+
+        // update_option() also returns false when the value is unchanged, so
+        // confirm the resulting state instead of trusting its return value.
+        return self::is_webhook_enabled() === (bool) $enabled;
     }
 
     /**

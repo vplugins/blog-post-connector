@@ -4,24 +4,19 @@ namespace VPlugins\BlogPostConnector\Endpoints;
 
 use WP_REST_Request;
 use VPlugins\BlogPostConnector\Middleware\AuthMiddleware;
+use VPlugins\BlogPostConnector\Helper\Globals;
 use VPlugins\BlogPostConnector\Helper\Response;
 use VPlugins\BlogPostConnector\Middleware\LoggerMiddleware;
 
 /**
  * Class WebhookControl
  *
- * Registers REST API endpoints that let SM enable or disable webhook
- * delivery for the current connection without deactivating the plugin.
+ * Registers REST API endpoints that let Social Marketing enable or disable
+ * webhook delivery for the current connection without deactivating the plugin.
  *
  * @package VPlugins\BlogPostConnector\Endpoints
  */
 class WebhookControl {
-
-    /**
-     * @const string OPTION_NAME The option storing whether webhook delivery is enabled.
-     */
-    const OPTION_NAME = 'sm_post_connector_webhook_enabled';
-
     /**
      * @var AuthMiddleware
      */
@@ -79,36 +74,44 @@ class WebhookControl {
     /**
      * Persists the desired webhook state and returns a standardized response.
      *
-     * Writing the same value the option already holds is a no-op from the
-     * caller's perspective, which is what makes both endpoints idempotent.
+     * Repeating a call is a no-op from the caller's perspective, which is what
+     * makes both endpoints idempotent. The stored state is verified after the
+     * write so a failed write is never reported as success.
      *
      * @param WP_REST_Request $request The incoming request, used for logging.
      * @param bool $enabled Whether webhook delivery should be enabled.
      * @return \WP_REST_Response
      */
     private function set_webhook_state(WP_REST_Request $request, $enabled) {
-        update_option(self::OPTION_NAME, $enabled ? '1' : '0');
+        if (!Globals::set_webhook_enabled($enabled)) {
+            return $this->respond(
+                $request,
+                Response::internal_server_error('webhook_state_update_failed')
+            );
+        }
 
-        $data = ['webhook_status' => $enabled ? 'enabled' : 'disabled'];
-        $response = Response::success($enabled ? 'webhook_enabled' : 'webhook_disabled', $data);
+        return $this->respond(
+            $request,
+            Response::success(
+                $enabled ? 'webhook_enabled' : 'webhook_disabled',
+                ['webhook_status' => $enabled ? 'enabled' : 'disabled']
+            )
+        );
+    }
 
+    /**
+     * Logs the request/response pair and returns the response.
+     *
+     * @param WP_REST_Request $request The incoming request.
+     * @param \WP_REST_Response $response The response to return.
+     * @return \WP_REST_Response
+     */
+    private function respond(WP_REST_Request $request, $response) {
         if (class_exists(LoggerMiddleware::class)) {
             $logger = new LoggerMiddleware();
             $logger->log($request, $response);
         }
 
         return $response;
-    }
-
-    /**
-     * Determines whether webhook delivery is currently enabled.
-     *
-     * Webhooks are enabled by default so existing connections keep working
-     * until SM explicitly disables them.
-     *
-     * @return bool True if webhook delivery is enabled, false otherwise.
-     */
-    public static function is_enabled() {
-        return get_option(self::OPTION_NAME, '1') === '1';
     }
 }

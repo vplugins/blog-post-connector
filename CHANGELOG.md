@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `/webhook/enable` and `/webhook/disable` API endpoints so Social Marketing can toggle webhook delivery for a connection without deactivating the plugin.
 - Both endpoints are idempotent and return the current webhook state (`enabled`/`disabled`).
 - Webhook delivery now checks this state before firing, preventing webhooks from continuing to fire against dead/disconnected connections.
+- Plugin lifecycle webhooks (`activated`, `deactivated`, `deleted`) are still delivered while disabled, so a muted site can be detected as available again.
+- The `/status` endpoint now reports the current webhook state as `webhook_status`.
+- Fixed the PHPUnit bootstrap, which aborted the whole suite before any test ran, and corrected a `TokenTest` mock that no longer matched `validate_token()`.
 
 ## [1.0.5]
 - Added optional `slug` parameter to Create Post and Update Post endpoints for custom permalinks.

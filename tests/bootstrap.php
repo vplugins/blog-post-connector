@@ -17,7 +17,33 @@ if ( defined( 'WP_TESTS_MULTISITE' ) ) {
 }
 
 /**
- * Now we include any plugin files that we need to be able to run the tests. This
- * should be files that define the functions and classes you're going to test.
+ * WP_Mock ships no WordPress classes, so stub the few the plugin constructs
+ * directly. Only classes are stubbed here, never functions -- functions must
+ * stay undefined so tests can mock them via WP_Mock::userFunction().
  */
-require_once __DIR__ . '/../blog-post-connector.php';
+if ( ! class_exists( 'WP_REST_Response' ) ) {
+	class WP_REST_Response {
+		protected $data;
+		protected $status;
+
+		public function __construct( $data = null, $status = 200 ) {
+			$this->data   = $data;
+			$this->status = $status;
+		}
+
+		public function get_data() {
+			return $this->data;
+		}
+
+		public function get_status() {
+			return $this->status;
+		}
+	}
+}
+
+/**
+ * The plugin's classes are all reachable through Composer's PSR-4 autoloader,
+ * so the main plugin file is deliberately not required here: it calls
+ * register_activation_hook() and other WordPress functions at the top level,
+ * which WP_Mock does not define, and requiring it aborts the whole run.
+ */

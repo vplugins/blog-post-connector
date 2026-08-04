@@ -3,6 +3,7 @@
 namespace VPlugins\BlogPostConnector\Tests\Endpoints;
 
 use VPlugins\BlogPostConnector\Endpoints\WebhookControl;
+use VPlugins\BlogPostConnector\Helper\Globals;
 use WP_Mock\Tools\TestCase;
 use WP_REST_Request;
 
@@ -27,6 +28,30 @@ class WebhookControlTest extends TestCase {
     public function tearDown(): void {
         \WP_Mock::tearDown();
         parent::tearDown();
+    }
+
+    /**
+     * Mocks get_option so the webhook flag reads back as $stored and logging stays off.
+     *
+     * @param string $stored The value the webhook option should read back as.
+     */
+    private function mock_get_option($stored) {
+        \WP_Mock::userFunction('get_option', [
+            'return' => function ($name, $default = null) use ($stored) {
+                if ($name === Globals::WEBHOOK_ENABLED_OPTION) {
+                    return $stored;
+                }
+
+                return false; // Keeps LoggerMiddleware inert.
+            },
+        ]);
+    }
+
+    /**
+     * Returns a stand-in request object for the endpoint callbacks.
+     */
+    private function mock_request() {
+        return \Mockery::mock(WP_REST_Request::class);
     }
 
     /**
@@ -70,22 +95,12 @@ class WebhookControlTest extends TestCase {
     public function test_enable_webhook_sets_option_and_returns_enabled_status() {
         \WP_Mock::userFunction('update_option', [
             'times' => 1,
-            'args' => [WebhookControl::OPTION_NAME, '1'],
+            'args' => [Globals::WEBHOOK_ENABLED_OPTION, '1'],
             'return' => true,
         ]);
-        \WP_Mock::userFunction('get_option', [
-            'args' => ['sm_post_connector_enable_logs'],
-            'return' => false,
-        ]);
-        \WP_Mock::userFunction('__', [
-            'return' => function ($text) {
-                return $text;
-            },
-        ]);
+        $this->mock_get_option('1');
 
-        $request = \Mockery::mock(WP_REST_Request::class);
-
-        $response = $this->webhookControl->enable_webhook($request);
+        $response = $this->webhookControl->enable_webhook($this->mock_request());
 
         $this->assertEquals(200, $response->get_status());
         $this->assertEquals('enabled', $response->get_data()['data']['webhook_status']);
@@ -97,22 +112,12 @@ class WebhookControlTest extends TestCase {
     public function test_disable_webhook_sets_option_and_returns_disabled_status() {
         \WP_Mock::userFunction('update_option', [
             'times' => 1,
-            'args' => [WebhookControl::OPTION_NAME, '0'],
+            'args' => [Globals::WEBHOOK_ENABLED_OPTION, '0'],
             'return' => true,
         ]);
-        \WP_Mock::userFunction('get_option', [
-            'args' => ['sm_post_connector_enable_logs'],
-            'return' => false,
-        ]);
-        \WP_Mock::userFunction('__', [
-            'return' => function ($text) {
-                return $text;
-            },
-        ]);
+        $this->mock_get_option('0');
 
-        $request = \Mockery::mock(WP_REST_Request::class);
-
-        $response = $this->webhookControl->disable_webhook($request);
+        $response = $this->webhookControl->disable_webhook($this->mock_request());
 
         $this->assertEquals(200, $response->get_status());
         $this->assertEquals('disabled', $response->get_data()['data']['webhook_status']);
@@ -120,27 +125,20 @@ class WebhookControlTest extends TestCase {
 
     /**
      * Test that repeated calls to disable an already-disabled webhook remain a success no-op.
+     *
+     * update_option() returns false when the value is unchanged, which must not
+     * be mistaken for a failed write.
      */
     public function test_disable_webhook_is_idempotent() {
         \WP_Mock::userFunction('update_option', [
             'times' => 2,
-            'args' => [WebhookControl::OPTION_NAME, '0'],
-            'return' => true,
+            'args' => [Globals::WEBHOOK_ENABLED_OPTION, '0'],
+            'return' => false, // Unchanged value.
         ]);
-        \WP_Mock::userFunction('get_option', [
-            'args' => ['sm_post_connector_enable_logs'],
-            'return' => false,
-        ]);
-        \WP_Mock::userFunction('__', [
-            'return' => function ($text) {
-                return $text;
-            },
-        ]);
+        $this->mock_get_option('0');
 
-        $request = \Mockery::mock(WP_REST_Request::class);
-
-        $first = $this->webhookControl->disable_webhook($request);
-        $second = $this->webhookControl->disable_webhook($request);
+        $first = $this->webhookControl->disable_webhook($this->mock_request());
+        $second = $this->webhookControl->disable_webhook($this->mock_request());
 
         $this->assertEquals(200, $first->get_status());
         $this->assertEquals(200, $second->get_status());
@@ -149,26 +147,18 @@ class WebhookControlTest extends TestCase {
     }
 
     /**
-     * Test that is_enabled() defaults to true when the option has never been set.
+     * Test that a write which does not land is reported as an error rather than success.
      */
-    public function test_is_enabled_defaults_to_true() {
-        \WP_Mock::userFunction('get_option', [
-            'args' => [WebhookControl::OPTION_NAME, '1'],
-            'return' => '1',
+    public function test_disable_webhook_reports_error_when_write_does_not_persist() {
+        \WP_Mock::userFunction('update_option', [
+            'times' => 1,
+            'args' => [Globals::WEBHOOK_ENABLED_OPTION, '0'],
+            'return' => false,
         ]);
+        $this->mock_get_option('1'); // Still enabled: the write did not stick.
 
-        $this->assertTrue(WebhookControl::is_enabled());
-    }
+        $response = $this->webhookControl->disable_webhook($this->mock_request());
 
-    /**
-     * Test that is_enabled() reflects a persisted disabled state.
-     */
-    public function test_is_enabled_reflects_disabled_option() {
-        \WP_Mock::userFunction('get_option', [
-            'args' => [WebhookControl::OPTION_NAME, '1'],
-            'return' => '0',
-        ]);
-
-        $this->assertFalse(WebhookControl::is_enabled());
+        $this->assertEquals(500, $response->get_status());
     }
 }

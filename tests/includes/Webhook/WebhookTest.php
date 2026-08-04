@@ -2,7 +2,7 @@
 
 namespace VPlugins\BlogPostConnector\Tests\Webhook;
 
-use VPlugins\BlogPostConnector\Endpoints\WebhookControl;
+use VPlugins\BlogPostConnector\Helper\Globals;
 use VPlugins\BlogPostConnector\Webhook\Webhook;
 use WP_Mock\Tools\TestCase;
 
@@ -28,7 +28,7 @@ class WebhookTest extends TestCase {
      */
     public function test_trigger_webhook_is_skipped_when_disabled() {
         \WP_Mock::userFunction('get_option', [
-            'args' => [WebhookControl::OPTION_NAME, '1'],
+            'args' => [Globals::WEBHOOK_ENABLED_OPTION, '1'],
             'return' => '0',
         ]);
 
@@ -37,6 +37,8 @@ class WebhookTest extends TestCase {
         ]);
 
         Webhook::trigger_webhook(['action' => 'created']);
+
+        $this->assertConditionsMet();
     }
 
     /**
@@ -44,7 +46,7 @@ class WebhookTest extends TestCase {
      */
     public function test_trigger_webhook_sends_request_when_enabled() {
         \WP_Mock::userFunction('get_option', [
-            'args' => [WebhookControl::OPTION_NAME, '1'],
+            'args' => [Globals::WEBHOOK_ENABLED_OPTION, '1'],
             'return' => '1',
         ]);
 
@@ -58,5 +60,30 @@ class WebhookTest extends TestCase {
         ]);
 
         Webhook::trigger_webhook(['action' => 'created']);
+
+        $this->assertConditionsMet();
+    }
+
+    /**
+     * Test that forced payloads (plugin lifecycle events) are sent even while
+     * delivery is disabled, without consulting the flag at all.
+     */
+    public function test_trigger_webhook_sends_forced_request_while_disabled() {
+        \WP_Mock::userFunction('get_option', [
+            'times' => 0,
+        ]);
+
+        \WP_Mock::userFunction('wp_remote_post', [
+            'times' => 1,
+            'return' => ['response' => ['code' => 200]],
+        ]);
+
+        \WP_Mock::userFunction('is_wp_error', [
+            'return' => false,
+        ]);
+
+        Webhook::trigger_webhook(['action' => 'deactivated'], true);
+
+        $this->assertConditionsMet();
     }
 }

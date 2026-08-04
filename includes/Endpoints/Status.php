@@ -97,6 +97,7 @@ class Status {
                 'tags' => $tags,
                 'authors' => $authors,
             ],
+            'webhook_status' => Globals::is_webhook_enabled() ? 'enabled' : 'disabled',
         ];
     
         $success_message = 'Status retrieved successfully.'; // Custom message
