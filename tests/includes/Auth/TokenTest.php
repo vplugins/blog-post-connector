@@ -23,7 +23,7 @@ class TokenTest extends TestCase {
         
         // Mock the get_option function to return a specific token
         \WP_Mock::userFunction('get_option', [
-            'args' => ['sm_post_connector_token'],
+            'args' => ['sm_post_connector_token', ''],
             'return' => $test_token
         ]);
 

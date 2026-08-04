@@ -22,6 +22,7 @@ function sm_remove_options() {
         'sm_post_connector_default_category',
         'sm_post_connector_secret_key',
         'sm_post_connector_logo',
+        'sm_post_connector_webhook_enabled',
         '_transient_timeout_sm_post_connector_latest_release',
         '_site_transient_update_plugins',
     ];

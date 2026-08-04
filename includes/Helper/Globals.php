@@ -12,8 +12,13 @@ class Globals {
     /**
      * @const string PLUGIN_VERSION The current version of the plugin.
      */
-    const PLUGIN_VERSION = '1.0.5';
+    const PLUGIN_VERSION = '1.0.6';
     const WEBHOOK_URL = 'https://social-posts-prod.apigateway.co/vplugin/webhook/blog-post';
+
+    /**
+     * @const string WEBHOOK_ENABLED_OPTION The option storing whether webhook delivery is enabled.
+     */
+    const WEBHOOK_ENABLED_OPTION = 'sm_post_connector_webhook_enabled';
 
     /**
      * Retrieves the plugin slug.
@@ -136,6 +141,9 @@ class Globals {
             'post_created_successfully' => __('Post created successfully', 'blog-post-connector'),
             'failed_to_update_post' => __('Failed to update post', 'blog-post-connector'),
             'failed_to_create_post' => __('Failed to create post', 'blog-post-connector'),
+            'webhook_enabled' => __('Webhook delivery enabled', 'blog-post-connector'),
+            'webhook_disabled' => __('Webhook delivery disabled', 'blog-post-connector'),
+            'webhook_state_update_failed' => __('Failed to update webhook delivery state', 'blog-post-connector'),
             'error' => __('An error occurred', 'blog-post-connector')
         ];
 
@@ -149,6 +157,38 @@ class Globals {
      */
     public static function get_webhook_url() {
         return self::WEBHOOK_URL;
+    }
+
+    /**
+     * Determines whether webhook delivery is currently enabled.
+     *
+     * Delivery is enabled by default so existing connections keep working
+     * until Social Marketing explicitly disables them.
+     *
+     * The value is cast rather than compared strictly: WordPress may hand back
+     * a boolean instead of the stored '1'/'0' string (for example when another
+     * writer used update_option() with a boolean and the in-request option
+     * cache is serving it), and a strict comparison would read that as
+     * disabled and silently mute every webhook.
+     *
+     * @return bool True if webhook delivery is enabled, false otherwise.
+     */
+    public static function is_webhook_enabled() {
+        return (bool) get_option(self::WEBHOOK_ENABLED_OPTION, '1');
+    }
+
+    /**
+     * Persists whether webhook delivery is enabled.
+     *
+     * @param bool $enabled Whether webhook delivery should be enabled.
+     * @return bool True if the stored state matches the requested state after writing.
+     */
+    public static function set_webhook_enabled($enabled) {
+        update_option(self::WEBHOOK_ENABLED_OPTION, $enabled ? '1' : '0');
+
+        // update_option() also returns false when the value is unchanged, so
+        // confirm the resulting state instead of trusting its return value.
+        return self::is_webhook_enabled() === (bool) $enabled;
     }
 
     /**

@@ -43,9 +43,18 @@ class Webhook {
      * Sends a POST request to the specified webhook URL.
      *
      * @param array $data The data to send in the webhook payload.
+     * @param bool $force Whether to send even when webhook delivery is disabled.
+     *                    Reserved for plugin lifecycle events, which report the
+     *                    connection's own state and are how Social Marketing
+     *                    learns a muted site is available again.
      * @return void
      */
-    public static function trigger_webhook($data = []) {
+    public static function trigger_webhook($data = [], $force = false) {
+        if (!$force && !Globals::is_webhook_enabled()) {
+            Globals::bp_error_log('Webhook not triggered: webhook delivery is disabled.');
+            return; // Exit if webhook delivery has been disabled by SM.
+        }
+
         $webhook_url = Globals::get_webhook_url();
 
         if (empty($webhook_url)) {
@@ -54,12 +63,17 @@ class Webhook {
         }
 
         // Set up the request arguments, including headers and payload.
+        // Forced sends run while delivery is disabled, i.e. against an endpoint
+        // Social Marketing has already told us is unreachable, and fire during
+        // plugin activation/deactivation. Send those without blocking so a dead
+        // endpoint cannot stall the admin request.
         $args = [
-            'body'    => json_encode($data),
-            'headers' => [
+            'body'     => json_encode($data),
+            'headers'  => [
                 'Content-Type' => 'application/json',
             ],
-            'timeout' => 10, // Set a reasonable timeout for the request.
+            'timeout'  => $force ? 3 : 10, // Set a reasonable timeout for the request.
+            'blocking' => !$force,
         ];
 
         // Send the POST request to the specified webhook URL.
@@ -446,7 +460,9 @@ class Webhook {
             'timestamp' => current_time('mysql'),
         ];
 
-        self::trigger_webhook($data);
+        // Sent even while delivery is disabled so Social Marketing can tell a
+        // muted site is back and decide whether to re-enable delivery.
+        self::trigger_webhook($data, true);
     }
 
     /**
@@ -466,7 +482,9 @@ class Webhook {
             'timestamp' => current_time('mysql'),
         ];
 
-        self::trigger_webhook($data);
+        // Lifecycle events report the connection's own state, so they are sent
+        // even while delivery is disabled.
+        self::trigger_webhook($data, true);
     }
 
     /**
@@ -486,7 +504,9 @@ class Webhook {
             'timestamp' => current_time('mysql'),
         ];
 
-        self::trigger_webhook($data);
+        // Lifecycle events report the connection's own state, so they are sent
+        // even while delivery is disabled.
+        self::trigger_webhook($data, true);
     }
 
     /**

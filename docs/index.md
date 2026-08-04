@@ -16,6 +16,7 @@ Welcome to the documentation for the **Blog Post Connector** plugin. This plugin
 	- [Get Authors](get-authors.md)
 	- [Get Categories](get-categories.md)
 	- [Get Tags](get-tags.md)
+	- [Enable/Disable Webhook](webhook-control.md)
 - [FAQ](faq.md)
 - [Support](#support)
 
@@ -50,6 +51,7 @@ The Blog Post Connector plugin provides the following API endpoints:
 -  **Get Categories**: Retrieves a list of all categories. [View Details](get-categories.md)
 -  **Get Tags**: Retrieves a list of all tags. [View Details](get-tags.md)
 -  **Status**: Provides the current status of the plugin. [View Details](status.md)  
+-  **Enable/Disable Webhook**: Turns outbound webhook delivery on or off for the current connection. [View Details](webhook-control.md)
 
 ## FAQ
 
