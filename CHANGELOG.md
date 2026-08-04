@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Plugin lifecycle webhooks (`activated`, `deactivated`, `deleted`) are still delivered while disabled, so a muted site can be detected as available again.
 - The `/status` endpoint now reports the current webhook state as `webhook_status`.
 - Fixed the PHPUnit bootstrap, which aborted the whole suite before any test ran, and corrected a `TokenTest` mock that no longer matched `validate_token()`.
+- Pinned `10up/phpcs-composer` to `^3.0`; the previous `dev-master` constraint no longer satisfied the lock file and pulled a `wp-coding-standards/wpcs` release blocked by a security advisory, breaking `composer install`.
 
 ## [1.0.5]
 - Added optional `slug` parameter to Create Post and Update Post endpoints for custom permalinks.

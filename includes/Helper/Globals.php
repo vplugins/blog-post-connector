@@ -165,10 +165,16 @@ class Globals {
      * Delivery is enabled by default so existing connections keep working
      * until Social Marketing explicitly disables them.
      *
+     * The value is cast rather than compared strictly: WordPress may hand back
+     * a boolean instead of the stored '1'/'0' string (for example when another
+     * writer used update_option() with a boolean and the in-request option
+     * cache is serving it), and a strict comparison would read that as
+     * disabled and silently mute every webhook.
+     *
      * @return bool True if webhook delivery is enabled, false otherwise.
      */
     public static function is_webhook_enabled() {
-        return get_option(self::WEBHOOK_ENABLED_OPTION, '1') === '1';
+        return (bool) get_option(self::WEBHOOK_ENABLED_OPTION, '1');
     }
 
     /**

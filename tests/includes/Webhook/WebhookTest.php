@@ -86,4 +86,39 @@ class WebhookTest extends TestCase {
 
         $this->assertConditionsMet();
     }
+
+    /**
+     * Test that the deactivation handler actually forces delivery.
+     *
+     * Covers the wiring rather than trigger_webhook() itself: dropping the
+     * force argument at the call site would silently re-mute lifecycle events.
+     */
+    public function test_plugin_deactivation_still_delivers_while_disabled() {
+        \WP_Mock::userFunction('get_option', [
+            'args' => [Globals::WEBHOOK_ENABLED_OPTION, '1'],
+            'return' => '0', // Delivery disabled.
+        ]);
+
+        \WP_Mock::userFunction('home_url', [
+            'return' => 'https://example.com',
+        ]);
+
+        \WP_Mock::userFunction('current_time', [
+            'return' => '2026-08-04 00:00:00',
+        ]);
+
+        \WP_Mock::userFunction('wp_remote_post', [
+            'times' => 1,
+            'return' => ['response' => ['code' => 200]],
+        ]);
+
+        \WP_Mock::userFunction('is_wp_error', [
+            'return' => false,
+        ]);
+
+        $webhook = new Webhook();
+        $webhook->trigger_webhook_on_plugin_deactivation('blog-post-connector/blog-post-connector.php');
+
+        $this->assertConditionsMet();
+    }
 }

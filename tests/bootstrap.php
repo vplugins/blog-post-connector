@@ -21,6 +21,10 @@ if ( defined( 'WP_TESTS_MULTISITE' ) ) {
  * directly. Only classes are stubbed here, never functions -- functions must
  * stay undefined so tests can mock them via WP_Mock::userFunction().
  */
+if ( ! class_exists( 'WP_REST_Request' ) ) {
+	class WP_REST_Request {}
+}
+
 if ( ! class_exists( 'WP_REST_Response' ) ) {
 	class WP_REST_Response {
 		protected $data;

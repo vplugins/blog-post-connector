@@ -23,12 +23,18 @@ class WebhookControl {
     protected $auth_middleware;
 
     /**
+     * @var LoggerMiddleware
+     */
+    protected $logger;
+
+    /**
      * WebhookControl constructor.
      *
-     * Initializes the AuthMiddleware instance and registers the REST API routes.
+     * Initializes the middleware instances and registers the REST API routes.
      */
     public function __construct() {
         $this->auth_middleware = new AuthMiddleware();
+        $this->logger = new LoggerMiddleware();
         add_action('rest_api_init', [$this, 'register_routes']);
     }
 
@@ -107,10 +113,7 @@ class WebhookControl {
      * @return \WP_REST_Response
      */
     private function respond(WP_REST_Request $request, $response) {
-        if (class_exists(LoggerMiddleware::class)) {
-            $logger = new LoggerMiddleware();
-            $logger->log($request, $response);
-        }
+        $this->logger->log($request, $response);
 
         return $response;
     }

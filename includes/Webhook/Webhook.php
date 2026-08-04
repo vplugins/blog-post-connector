@@ -63,12 +63,17 @@ class Webhook {
         }
 
         // Set up the request arguments, including headers and payload.
+        // Forced sends run while delivery is disabled, i.e. against an endpoint
+        // Social Marketing has already told us is unreachable, and fire during
+        // plugin activation/deactivation. Send those without blocking so a dead
+        // endpoint cannot stall the admin request.
         $args = [
-            'body'    => json_encode($data),
-            'headers' => [
+            'body'     => json_encode($data),
+            'headers'  => [
                 'Content-Type' => 'application/json',
             ],
-            'timeout' => 10, // Set a reasonable timeout for the request.
+            'timeout'  => $force ? 3 : 10, // Set a reasonable timeout for the request.
+            'blocking' => !$force,
         ];
 
         // Send the POST request to the specified webhook URL.

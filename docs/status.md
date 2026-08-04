@@ -59,7 +59,17 @@ $http({
             "categories" : "categories",
             "tags" : "tags",
             "authors" : "authors"
-        }
+        },
+        "webhook_status": "enabled"
     }
 }
 ```
+
+### Response Fields
+
+| Field                  | Type   | Description                                                                                  |
+|:-----------------------|:-------|:---------------------------------------------------------------------------------------------|
+| data.site_details      | object | Site name, description, logo, WordPress version, plugin version, categories, tags and authors. |
+| data.webhook_status    | string | Whether outbound webhook delivery is currently `enabled` or `disabled`. See [Enable/Disable Webhook](webhook-control.md). |
+
+Note that `webhook_status` is a sibling of `site_details`, not nested inside it — it describes the connection rather than the site.
