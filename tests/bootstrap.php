@@ -46,6 +46,36 @@ if ( ! class_exists( 'WP_REST_Response' ) ) {
 }
 
 /**
+ * Stand-in for the users get_users() and get_user_by() return. Mirrors the real
+ * WP_User's public properties and magic getter, so a test sees every field a
+ * real user object carries, including user_pass and user_email.
+ */
+if ( ! class_exists( 'WP_User' ) ) {
+	class WP_User {
+		public $data;
+		public $ID = 0;
+		public $caps = array();
+		public $cap_key;
+		public $roles = array();
+		public $allcaps = array();
+		public $filter = null;
+
+		public function __construct( $data = array() ) {
+			$this->data = (object) $data;
+			$this->ID   = isset( $this->data->ID ) ? (int) $this->data->ID : 0;
+		}
+
+		public function __get( $key ) {
+			return isset( $this->data->$key ) ? $this->data->$key : null;
+		}
+
+		public function __isset( $key ) {
+			return isset( $this->data->$key );
+		}
+	}
+}
+
+/**
  * The plugin's classes are all reachable through Composer's PSR-4 autoloader,
  * so the main plugin file is deliberately not required here: it calls
  * register_activation_hook() and other WordPress functions at the top level,

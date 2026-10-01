@@ -80,9 +80,16 @@ class Status {
         $categories = Globals::get_categories();
         $tags = Globals::get_tags();
 
-        // Get all authors and who have the role of Author, Editor, or Administrator
-        $authors = Globals::get_authors();
-    
+        // Get all authors and who have the role of Author, Editor, or Administrator.
+        // Only the ID and display name are returned: a raw WP_User also carries the
+        // password hash, email and activation key.
+        $authors = array_map(fn($user) => $this->format_author($user), Globals::get_authors());
+
+        // Default author from Post Settings, or null when none is saved or the user no longer exists
+        $default_author_id = (int) get_option('sm_post_connector_default_author', 0);
+        $default_author_user = $default_author_id > 0 ? get_user_by('ID', $default_author_id) : false;
+        $default_author = $default_author_user ? $this->format_author($default_author_user) : null;
+
         $data = [
             'site_details' => [
                 'name' => $site_name,
@@ -96,6 +103,7 @@ class Status {
                 'categories' => $categories,
                 'tags' => $tags,
                 'authors' => $authors,
+                'default_author' => $default_author,
             ],
             'webhook_status' => Globals::is_webhook_enabled() ? 'enabled' : 'disabled',
         ];
@@ -110,6 +118,21 @@ class Status {
     
         // Use the Response helper for a standard format
         return Response::success($success_message, $data);
+    }
+
+    /**
+     * Formats a user in the shape Social Marketing reads: the ID plus data.display_name.
+     *
+     * @param \WP_User $user The user to format.
+     * @return array The formatted author.
+     */
+    protected function format_author($user) {
+        return [
+            'ID' => (int) $user->ID,
+            'data' => [
+                'display_name' => $user->display_name,
+            ],
+        ];
     }
 
     /**

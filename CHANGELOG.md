@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.7]
+- The `/status` endpoint now returns `default_author`: the Default Author saved in Post Settings, as `{ "ID", "data": { "display_name" } }`, or `null` when no default is saved or the saved user no longer exists.
+- Each `/status` author entry now carries only `ID` and `data.display_name`. Previously every entry was a full WordPress user object, including the password hash, email and activation key.
+- Added unit tests for the `/status` author fields.
+
 ## [1.0.6]
 - Added `/webhook/enable` and `/webhook/disable` API endpoints so Social Marketing can toggle webhook delivery for a connection without deactivating the plugin.
 - Both endpoints are idempotent and return the current webhook state (`enabled`/`disabled`).
