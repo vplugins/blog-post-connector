@@ -75,7 +75,7 @@ $http({
 |:-----------------------|:-------|:---------------------------------------------------------------------------------------------|
 | data.site_details      | object | Site name, description, logo, WordPress version, plugin version, categories, tags, authors and the default author. |
 | data.site_details.authors | array | Users with the Author, Editor or Administrator role. Each entry has only `ID` and `data.display_name`. |
-| data.site_details.default_author | object or null | The Default Author saved in Post Settings, in the same shape as an `authors` entry. `null` when no default is saved or the saved user no longer exists. It can be a user who is not in `authors`, such as a Contributor. |
+| data.site_details.default_author | object or null | The author that posts sent without an `author` are assigned to, in the same shape as an `authors` entry. This is the Default Author saved in Post Settings when it points at an existing user, otherwise the site default: the administrator with the lowest user ID. `null` only when the site has no administrator. A saved default can be a user who is not in `authors`, such as a Contributor. |
 | data.webhook_status    | string | Whether outbound webhook delivery is currently `enabled` or `disabled`. See [Enable/Disable Webhook](webhook-control.md). |
 
 Note that `webhook_status` is a sibling of `site_details`, not nested inside it — it describes the connection rather than the site.

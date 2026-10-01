@@ -76,6 +76,24 @@ if ( ! class_exists( 'WP_User' ) ) {
 }
 
 /**
+ * Stand-in for the WP_Query the post handler builds to look for a post with the same
+ * title. It never finds one, so a create request proceeds to the insert.
+ */
+if ( ! class_exists( 'WP_Query' ) ) {
+	class WP_Query {
+		public $query_vars;
+
+		public function __construct( $query = array() ) {
+			$this->query_vars = $query;
+		}
+
+		public function have_posts() {
+			return false;
+		}
+	}
+}
+
+/**
  * The plugin's classes are all reachable through Composer's PSR-4 autoloader,
  * so the main plugin file is deliberately not required here: it calls
  * register_activation_hook() and other WordPress functions at the top level,

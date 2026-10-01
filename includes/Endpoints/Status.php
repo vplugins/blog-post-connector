@@ -85,9 +85,9 @@ class Status {
         // password hash, email and activation key.
         $authors = array_map(fn($user) => $this->format_author($user), Globals::get_authors());
 
-        // Default author from Post Settings, or null when none is saved or the user no longer exists
-        $default_author_id = (int) get_option('sm_post_connector_default_author', 0);
-        $default_author_user = $default_author_id > 0 ? get_user_by('ID', $default_author_id) : false;
+        // The author posts without an author land on: the saved Default Author, else the
+        // first administrator, else null when the site has no administrator (see Globals).
+        $default_author_user = Globals::get_default_author();
         $default_author = $default_author_user ? $this->format_author($default_author_user) : null;
 
         $data = [

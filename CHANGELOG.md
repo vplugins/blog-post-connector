@@ -6,9 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [1.0.7]
-- The `/status` endpoint now returns `default_author`: the Default Author saved in Post Settings, as `{ "ID", "data": { "display_name" } }`, or `null` when no default is saved or the saved user no longer exists.
+- The `/status` endpoint now returns `default_author`, as `{ "ID", "data": { "display_name" } }`: the Default Author saved in Post Settings, or the site default when none is saved. `null` only when the site has no administrator.
+- A site default now exists without saving anything: when no valid Default Author is saved, the administrator with the lowest user ID is used. `/status`, `/create-post` and the Post Settings dropdown all resolve the same user.
+- `/create-post` requests without an `author` are assigned to that default. Previously they fell back to user ID 1, which fails with `invalid_author_id` on sites where that user does not exist.
+- The Default Author dropdown in Post Settings now preselects the author in effect and marks it as the site default when nothing is saved, instead of silently showing the first name in the list.
 - Each `/status` author entry now carries only `ID` and `data.display_name`. Previously every entry was a full WordPress user object, including the password hash, email and activation key.
-- Added unit tests for the `/status` author fields.
+- Added unit tests for the `/status` author fields, the create-post author fallback and the Default Author dropdown.
 
 ## [1.0.6]
 - Added `/webhook/enable` and `/webhook/disable` API endpoints so Social Marketing can toggle webhook delivery for a connection without deactivating the plugin.

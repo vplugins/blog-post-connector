@@ -111,6 +111,35 @@ class Globals {
     }
 
     /**
+     * Resolves the author that posts without an explicit author are assigned to.
+     *
+     * The Default Author saved in Post Settings wins when it points at an existing user.
+     * Otherwise the site default is the administrator with the lowest user ID, so a site
+     * always has a usable default without anyone saving the setting. Null only when the
+     * site has no administrator at all.
+     *
+     * @return \WP_User|null The effective default author, or null when none can be resolved.
+     */
+    public static function get_default_author() {
+        $saved_id = (int) get_option('sm_post_connector_default_author', 0);
+        if ($saved_id > 0) {
+            $saved = get_user_by('ID', $saved_id);
+            if ($saved) {
+                return $saved;
+            }
+        }
+
+        $administrators = get_users([
+            'role'    => 'administrator',
+            'orderby' => 'ID',
+            'order'   => 'ASC',
+            'number'  => 1,
+        ]);
+
+        return $administrators ? $administrators[0] : null;
+    }
+
+    /**
      * Retrieves a success message based on a given key.
      *
      * @param string $key The key for the desired success message.

@@ -2,6 +2,8 @@
 
 namespace VPlugins\BlogPostConnector\Admin;
 
+use VPlugins\BlogPostConnector\Helper\Globals;
+
 class PostSettingsTab {
     public function __construct() {
         add_action('admin_init', [$this, 'register_settings']);
@@ -90,17 +92,33 @@ class PostSettingsTab {
 
     public function render_author_field() {
         $authors = get_users(['capability' => 'edit_posts']);
-        $default = get_option('sm_post_connector_default_author', '');
+
+        // Preselect the author that is actually in effect. When nothing valid is saved that is
+        // the site default (the first administrator), and the dropdown says so instead of
+        // silently showing the first name in the list.
+        $saved_id = (int) get_option('sm_post_connector_default_author', 0);
+        $default_author = Globals::get_default_author();
+        $selected_id = $default_author ? (int) $default_author->ID : 0;
+        $is_site_default = $default_author && $selected_id !== $saved_id;
+
         echo '<select name="sm_post_connector_default_author">';
         foreach ($authors as $author) {
+            $label = $author->display_name;
+            if ($is_site_default && (int) $author->ID === $selected_id) {
+                $label .= ' ' . __('(site default)', 'blog-post-connector');
+            }
             printf(
                 '<option value="%s"%s>%s</option>',
                 esc_attr($author->ID),
-                selected($default, $author->ID, false),
-                esc_html($author->display_name)
+                selected($selected_id, (int) $author->ID, false),
+                esc_html($label)
             );
         }
         echo '</select>';
+
+        if ($is_site_default) {
+            echo '<p class="description">' . esc_html__('No Default Author is saved. Until one is saved, posts sent without an author are assigned to the first administrator.', 'blog-post-connector') . '</p>';
+        }
     }
 
     public function render_category_field() {

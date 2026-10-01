@@ -26,7 +26,7 @@ To create a new post, make a `POST` request with the required parameters include
 | title             | string | The title of the post.                       |
 | content           | string | The content of the post.                     |
 | status            | string | The status of the post (e.g., `publish`).    |
-| author            | int    | The ID of the author of the post.            |
+| author            | int    | Optional. The ID of the author of the post. When omitted, the post is assigned to the Default Author saved in Post Settings, or to the first administrator when none is saved. The same user is reported as `default_author` by [`/status`](status.md). |
 | featured_image    | string | URL of the new featured image for the post.  |
 | slug              | string | Optional. Custom permalink slug. If omitted, WordPress generates one from the title. |
 
