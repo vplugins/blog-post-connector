@@ -91,7 +91,9 @@ abstract class BasePost {
         }
 
         if (empty($author_id) && !$is_update) {
-            $author_id = get_option('sm_post_connector_default_author', 1);
+            // Saved Default Author, else the first administrator; 0 fails the author check below.
+            $default_author = Globals::get_default_author();
+            $author_id = $default_author ? (int) $default_author->ID : 0;
         }
 
         $valid_statuses = ['publish', 'future', 'draft'];

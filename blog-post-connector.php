@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Blog Post Connector
  * Description: A plugin to publish blogs to your WordPress website.
- * Version: 1.0.6
+ * Version: 1.0.7
  * Author: Website Pro, a WordPress hosting platform.
  * Text Domain: blog-post-connector
  */

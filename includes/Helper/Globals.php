@@ -12,7 +12,7 @@ class Globals {
     /**
      * @const string PLUGIN_VERSION The current version of the plugin.
      */
-    const PLUGIN_VERSION = '1.0.6';
+    const PLUGIN_VERSION = '1.0.7';
     const WEBHOOK_URL = 'https://social-posts-prod.apigateway.co/vplugin/webhook/blog-post';
 
     /**
@@ -108,6 +108,35 @@ class Globals {
             'order' => 'ASC'
         ];
         return get_users($args);
+    }
+
+    /**
+     * Resolves the author that posts without an explicit author are assigned to.
+     *
+     * The Default Author saved in Post Settings wins when it points at an existing user.
+     * Otherwise the site default is the administrator with the lowest user ID, so a site
+     * always has a usable default without anyone saving the setting. Null only when the
+     * site has no administrator at all.
+     *
+     * @return \WP_User|null The effective default author, or null when none can be resolved.
+     */
+    public static function get_default_author() {
+        $saved_id = (int) get_option('sm_post_connector_default_author', 0);
+        if ($saved_id > 0) {
+            $saved = get_user_by('ID', $saved_id);
+            if ($saved) {
+                return $saved;
+            }
+        }
+
+        $administrators = get_users([
+            'role'    => 'administrator',
+            'orderby' => 'ID',
+            'order'   => 'ASC',
+            'number'  => 1,
+        ]);
+
+        return $administrators ? $administrators[0] : null;
     }
 
     /**

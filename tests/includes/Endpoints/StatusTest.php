@@ -3,6 +3,7 @@
 namespace VPlugins\BlogPostConnector\Tests\Endpoints;
 
 use VPlugins\BlogPostConnector\Endpoints\Status;
+use VPlugins\BlogPostConnector\Helper\Globals;
 use WP_Mock\Tools\TestCase;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -50,6 +51,179 @@ class StatusTest extends TestCase {
         $this->status->register_routes();
 
         \WP_Mock::assertHooksAdded();
+    }
+
+    /**
+     * Test that the saved Default Author is returned in the same shape as the authors entries,
+     * and wins over the site default even when a lower-ID administrator exists.
+     */
+    public function test_get_status_returns_saved_default_author() {
+        $this->mock_site([15 => $this->make_user(15, 'Jane Author', 'author'), 13 => $this->make_user(13, 'Sam Admin', 'administrator')], '15');
+
+        $site_details = $this->get_site_details();
+
+        $this->assertArrayHasKey('default_author', $site_details);
+        $this->assertSame(['ID' => 15, 'data' => ['display_name' => 'Jane Author']], $site_details['default_author']);
+    }
+
+    /**
+     * Test that without a valid saved default the site default is the administrator with the
+     * lowest ID, never the hardcoded user 1 and never the first name alphabetically.
+     *
+     * User 1 exists here as an Editor, so a fallback to user 1 would pass validation and fail
+     * this test. The display names sort in the opposite order to the IDs, so ordering by name
+     * would pick the wrong administrator.
+     *
+     * @dataProvider no_valid_default_author_provider
+     *
+     * @param string|null $stored The stored option value, or null when the option was never saved.
+     */
+    public function test_get_status_default_author_falls_back_to_the_first_administrator($stored) {
+        $this->mock_site([
+            1  => $this->make_user(1, 'Site Editor', 'editor'),
+            15 => $this->make_user(15, 'Amy Admin', 'administrator'),
+            13 => $this->make_user(13, 'Zed Admin', 'administrator'),
+        ], $stored);
+
+        $site_details = $this->get_site_details();
+
+        $this->assertSame(['ID' => 13, 'data' => ['display_name' => 'Zed Admin']], $site_details['default_author']);
+    }
+
+    /**
+     * Test that default_author is null only when the site has no administrator at all.
+     *
+     * @dataProvider no_valid_default_author_provider
+     *
+     * @param string|null $stored The stored option value, or null when the option was never saved.
+     */
+    public function test_get_status_default_author_is_null_when_the_site_has_no_administrator($stored) {
+        $this->mock_site([1 => $this->make_user(1, 'Site Editor', 'editor'), 15 => $this->make_user(15, 'Jane Author', 'author')], $stored);
+
+        $site_details = $this->get_site_details();
+
+        $this->assertArrayHasKey('default_author', $site_details);
+        $this->assertNull($site_details['default_author']);
+    }
+
+    /**
+     * Stored Default Author values that do not point at an existing user.
+     */
+    public function no_valid_default_author_provider() {
+        return [
+            'option never saved'     => [null],
+            'saved as empty'         => [''],
+            'saved user was deleted' => ['99'],
+        ];
+    }
+
+    /**
+     * Test that authors carry only the ID and display name, never the password hash or email.
+     */
+    public function test_get_status_authors_expose_only_id_and_display_name() {
+        $this->mock_site([15 => $this->make_user(15, 'Jane Author'), 13 => $this->make_user(13, 'Sam Editor')], null);
+
+        $this->assertSame(
+            [
+                ['ID' => 15, 'data' => ['display_name' => 'Jane Author']],
+                ['ID' => 13, 'data' => ['display_name' => 'Sam Editor']],
+            ],
+            $this->get_site_details()['authors']
+        );
+    }
+
+    /**
+     * Builds a user carrying every field a real WP_User has.
+     *
+     * @param int    $id           The user ID.
+     * @param string $display_name The display name.
+     * @param string $role         The user's single role, as WordPress stores it (lowercase key).
+     * @return \WP_User
+     */
+    private function make_user($id, $display_name, $role = 'administrator') {
+        $user = new \WP_User([
+            'ID'                  => (string) $id,
+            'user_login'          => 'user' . $id,
+            'user_pass'           => '$P$Bnotarealhash' . $id,
+            'user_nicename'       => 'user' . $id,
+            'user_email'          => 'user' . $id . '@example.com',
+            'user_url'            => '',
+            'user_registered'     => '2025-01-16 13:06:36',
+            'user_activation_key' => '',
+            'user_status'         => '0',
+            'display_name'        => $display_name,
+        ]);
+        $user->roles = [$role];
+
+        return $user;
+    }
+
+    /**
+     * Mocks the WordPress calls get_status() makes.
+     *
+     * @param array       $users          Users keyed by ID, as get_users() and get_user_by() see them.
+     * @param string|null $default_author The stored Default Author option, or null when it was never saved.
+     */
+    private function mock_site($users, $default_author) {
+        \WP_Mock::userFunction('get_option', [
+            'return' => function ($name, $default = false) use ($default_author) {
+                if ($name === 'sm_post_connector_default_author') {
+                    return $default_author === null ? $default : $default_author;
+                }
+
+                if ($name === Globals::WEBHOOK_ENABLED_OPTION) {
+                    return '1';
+                }
+
+                return false; // No custom logo, and keeps LoggerMiddleware inert.
+            },
+        ]);
+        \WP_Mock::userFunction('get_users', [
+            'return' => function ($args = []) use ($users) {
+                $list = array_values($users);
+                if (isset($args['role'])) {
+                    $list = array_values(array_filter($list, function ($user) use ($args) {
+                        return in_array($args['role'], $user->roles, true);
+                    }));
+                }
+                if (isset($args['orderby']) && $args['orderby'] === 'ID') {
+                    usort($list, function ($a, $b) {
+                        return $a->ID <=> $b->ID;
+                    });
+                    if (isset($args['order']) && strtoupper($args['order']) === 'DESC') {
+                        $list = array_reverse($list);
+                    }
+                }
+                if (!empty($args['number'])) {
+                    $list = array_slice($list, 0, (int) $args['number']);
+                }
+
+                return $list;
+            },
+        ]);
+        \WP_Mock::userFunction('get_user_by', [
+            'return' => function ($field, $value) use ($users) {
+                return $field === 'ID' && isset($users[(int) $value]) ? $users[(int) $value] : false;
+            },
+        ]);
+        \WP_Mock::userFunction('get_bloginfo', ['return' => 'Test Site']);
+        \WP_Mock::userFunction('get_site_icon_url', ['return' => '']);
+        \WP_Mock::userFunction('get_categories', ['return' => []]);
+        \WP_Mock::userFunction('get_tags', ['return' => []]);
+        \WP_Mock::userFunction('wp_remote_get', ['return' => ['body' => '{"tag_name":"v1.0.6"}']]);
+        \WP_Mock::userFunction('is_wp_error', ['return' => false]);
+        \WP_Mock::userFunction('wp_remote_retrieve_body', ['return' => '{"tag_name":"v1.0.6"}']);
+    }
+
+    /**
+     * Calls the status endpoint and returns its site_details block.
+     *
+     * @return array
+     */
+    private function get_site_details() {
+        $response = $this->status->get_status(\Mockery::mock(WP_REST_Request::class));
+
+        return $response->get_data()['data']['site_details'];
     }
 
 }
