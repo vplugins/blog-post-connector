@@ -117,7 +117,7 @@ class PostSettingsTab {
         echo '</select>';
 
         if ($is_site_default) {
-            echo '<p class="description">' . esc_html__('No Default Author is saved. Until one is saved, posts sent without an author are assigned to the first administrator.', 'blog-post-connector') . '</p>';
+            echo '<p class="description">' . esc_html__('No default author is set. Posts without an author will be assigned to the first administrator until one is configured.', 'blog-post-connector') . '</p>';
         }
     }
 
