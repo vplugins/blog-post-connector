@@ -17,6 +17,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 use VPlugins\BlogPostConnector\Auth\TokenManager;
 use VPlugins\BlogPostConnector\Admin\SettingsPageController;
 use VPlugins\BlogPostConnector\Updater\Update;
+use VPlugins\BlogPostConnector\Updater\AutoUpdate;
 use VPlugins\BlogPostConnector\Webhook\Webhook;
 use VPlugins\BlogPostConnector\Endpoints\{
     CreatePost,
@@ -72,6 +73,7 @@ class EndpointRegistry {
         }
         new Update();
         new Webhook();
+        new AutoUpdate();
     }
 }
 
