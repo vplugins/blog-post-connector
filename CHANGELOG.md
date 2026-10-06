@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.8]
+- Fixed the self-updater taking over every plugin install and update. Its `upgrader_post_install` handler fired for every plugin, moved the files being installed into the Blog Post Connector folder and activated Blog Post Connector, so the installed plugin (for example WooCommerce) showed as missing and reinstalling never helped. It now acts only when Blog Post Connector itself is updated.
+- A failed file move during the plugin's own update now returns an error instead of reporting success.
+- `/create-post` now accepts titles that already exist. WordPress gives the new post a unique slug (`my-post-2`, `my-post-3`), matching the dashboard. The `post_with_title_exists` error has been removed.
+- Added unit tests for the updater's post-install handler.
+
 ## [1.0.7]
 - The `/status` endpoint now returns `default_author`, as `{ "ID", "data": { "display_name" } }`: the Default Author saved in Post Settings, or the site default when none is saved. `null` only when the site has no administrator.
 - A site default now exists without saving anything: when no valid Default Author is saved, the administrator with the lowest user ID is used. `/status`, `/create-post` and the Post Settings dropdown all resolve the same user.
