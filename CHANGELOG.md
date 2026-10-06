@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [1.0.8]
-- Fixed the self-updater taking over every plugin install and update. Its `upgrader_post_install` handler fired for every plugin, moved the files being installed into the Blog Post Connector folder and activated Blog Post Connector, so the installed plugin (for example WooCommerce) showed as missing and reinstalling never helped. It now acts only when Blog Post Connector itself is updated.
+- Fixed the self-updater moving other plugins and themes into the Blog Post Connector folder. Its `upgrader_post_install` handler ran for every plugin and theme install and update, and on sites where Blog Post Connector was not in `wp-content/plugins/blog-post-connector/` (for example installed by uploading the release zip, which creates `sm-post-connector-package/`) the item being installed (for example WooCommerce) ended up in that folder and showed as missing. It now acts only when Blog Post Connector itself is updated.
 - A failed file move during the plugin's own update now returns an error instead of reporting success.
 - `/create-post` now accepts titles that already exist. WordPress gives the new post a unique slug (`my-post-2`, `my-post-3`), matching the dashboard. The `post_with_title_exists` error has been removed.
 - Added unit tests for the updater's post-install handler.
