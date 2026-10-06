@@ -30,6 +30,8 @@ To create a new post, make a `POST` request with the required parameters include
 | featured_image    | string | URL of the new featured image for the post.  |
 | slug              | string | Optional. Custom permalink slug. If omitted, WordPress generates one from the title. |
 
+> **Note:** Titles do not need to be unique. If a post with the same title already exists, WordPress generates a unique slug for the new post (e.g. `my-blog-post-2`, `my-blog-post-3`), matching the behavior of the WordPress dashboard.
+
 ### Example 
 
 ```javascript
