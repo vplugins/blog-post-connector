@@ -76,6 +76,25 @@ if ( ! class_exists( 'WP_User' ) ) {
 }
 
 /**
+ * Stand-in for the error the updater returns when it cannot move the updated files.
+ */
+if ( ! class_exists( 'WP_Error' ) ) {
+	class WP_Error {
+		public $code;
+		public $message;
+
+		public function __construct( $code = '', $message = '' ) {
+			$this->code    = $code;
+			$this->message = $message;
+		}
+
+		public function get_error_code() {
+			return $this->code;
+		}
+	}
+}
+
+/**
  * The plugin's classes are all reachable through Composer's PSR-4 autoloader,
  * so the main plugin file is deliberately not required here: it calls
  * register_activation_hook() and other WordPress functions at the top level,
