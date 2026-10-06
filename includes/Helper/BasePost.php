@@ -81,10 +81,7 @@ abstract class BasePost {
             return Response::error('date_for_publish_status_must_be_past', 400);
         }
 
-        // Check for duplicate post title if creating a new post
-        if (!$is_update && $title && get_page_by_title($title, OBJECT, 'post')) {
-            return Response::error('post_with_title_exists', 400);
-        }
+        // Duplicate titles are allowed; wp_insert_post() generates a unique slug (e.g. my-post-2).
 
         $attachment_id = 0;
         if (!empty($featured_image_url)) {

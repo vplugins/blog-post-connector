@@ -116,7 +116,6 @@ class Globals {
             'invalid_post_status' => __('Invalid post status', 'sm-post-connector'),
             'date_required_for_future_posts' => __('Date is required for future posts', 'sm-post-connector'),
             'date_for_publish_status_must_be_past' => __('Date for publish status must be in the past', 'sm-post-connector'),
-            'post_with_title_exists' => __('A post with the same title already exists', 'sm-post-connector'),
             'post_updated_successfully' => __('Post updated successfully', 'sm-post-connector'),
             'post_created_successfully' => __('Post created successfully', 'sm-post-connector'),
             'failed_to_update_post' => __('Failed to update post', 'sm-post-connector'),
