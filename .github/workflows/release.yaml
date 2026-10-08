@@ -42,16 +42,23 @@ jobs:
         rm -f composer.json composer.lock package.json package-lock.json readme.md README.md
 
     - name: Zip the plugin
+      # The files go inside a blog-post-connector/ folder so WordPress installs the zip into
+      # wp-content/plugins/blog-post-connector/. Without it, WordPress names the folder after
+      # the zip file (sm-post-connector-package/), as happened with the 1.0.6 and 1.0.7 releases.
       run: |
-        zip -r sm-post-connector-package.zip . \
-          -x "*.git*" "*.github*" "*.yml" "*.yaml" "phpunit.xml" "tests/*" "docs/*"
+        mkdir -p build/blog-post-connector
+        rsync -a . build/blog-post-connector \
+          --exclude='.git*' --exclude=build --exclude=tests --exclude=docs \
+          --exclude=phpunit.xml --exclude='*.yml' --exclude='*.yaml'
+        cd build
+        zip -r blog-post-connector-package.zip blog-post-connector
 
     - name: Create release and upload asset
       uses: softprops/action-gh-release@v2
       with:
         tag_name: ${{ env.VERSION }}
-        name: SM Plugin ${{ env.VERSION }}
-        body: "Release of SM Post Connector plugin version ${{ env.VERSION }}."
+        name: Blog Post Connector Plugin ${{ env.VERSION }}
+        body: "Release of Blog Post Connector plugin version ${{ env.VERSION }}."
         draft: false
         prerelease: false
-        files: sm-post-connector-package.zip
+        files: build/blog-post-connector-package.zip

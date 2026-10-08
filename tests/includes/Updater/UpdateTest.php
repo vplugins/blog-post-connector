@@ -90,11 +90,13 @@ class UpdateTest extends TestCase {
     }
 
     /**
-     * Updating this plugin moves the unpacked release asset (sm-post-connector-package/) into the plugin's own folder.
+     * A copy installed from the 1.0.6/1.0.7 release zip runs from sm-post-connector-package/. The
+     * release zip unpacks to blog-post-connector/, so the update is moved back into the running folder.
      */
     public function test_after_install_moves_own_update_into_plugin_folder() {
-        $plugin_folder = WP_PLUGIN_DIR . '/' . dirname(Globals::get_plugin_file());
-        $extracted = WP_PLUGIN_DIR . '/sm-post-connector-package/';
+        $this->running_plugin_file = 'sm-post-connector-package/blog-post-connector.php';
+        $plugin_folder = WP_PLUGIN_DIR . '/sm-post-connector-package';
+        $extracted = WP_PLUGIN_DIR . '/blog-post-connector/';
 
         $this->filesystem->shouldReceive('move')->once()->with($extracted, $plugin_folder)->andReturn(true);
         \WP_Mock::userFunction('get_option', [
@@ -103,12 +105,12 @@ class UpdateTest extends TestCase {
         ]);
         \WP_Mock::userFunction('activate_plugin', [
             'times' => 1,
-            'args' => [Globals::get_plugin_file()],
+            'args' => [$this->running_plugin_file],
         ]);
 
         $result = (new Update())->after_install(
             true,
-            ['plugin' => Globals::get_plugin_file(), 'type' => 'plugin', 'action' => 'update'],
+            ['plugin' => $this->running_plugin_file, 'type' => 'plugin', 'action' => 'update'],
             ['destination' => $extracted]
         );
 
@@ -120,8 +122,9 @@ class UpdateTest extends TestCase {
      * whose hook_extra has no type or action.
      */
     public function test_after_install_moves_own_bulk_update_into_plugin_folder() {
-        $plugin_folder = WP_PLUGIN_DIR . '/' . dirname(Globals::get_plugin_file());
-        $extracted = WP_PLUGIN_DIR . '/sm-post-connector-package/';
+        $this->running_plugin_file = 'sm-post-connector-package/blog-post-connector.php';
+        $plugin_folder = WP_PLUGIN_DIR . '/sm-post-connector-package';
+        $extracted = WP_PLUGIN_DIR . '/blog-post-connector/';
 
         $this->filesystem->shouldReceive('move')->once()->with($extracted, $plugin_folder)->andReturn(true);
         \WP_Mock::userFunction('get_option', [
@@ -130,14 +133,14 @@ class UpdateTest extends TestCase {
         ]);
         \WP_Mock::userFunction('activate_plugin', [
             'times' => 1,
-            'args' => [Globals::get_plugin_file()],
+            'args' => [$this->running_plugin_file],
         ]);
 
         $result = (new Update())->after_install(
             true,
             [
-                'plugin' => Globals::get_plugin_file(),
-                'temp_backup' => ['slug' => 'blog-post-connector', 'src' => WP_PLUGIN_DIR, 'dir' => 'plugins'],
+                'plugin' => $this->running_plugin_file,
+                'temp_backup' => ['slug' => 'sm-post-connector-package', 'src' => WP_PLUGIN_DIR, 'dir' => 'plugins'],
             ],
             ['destination' => $extracted]
         );
@@ -146,8 +149,8 @@ class UpdateTest extends TestCase {
     }
 
     /**
-     * Files that already unpacked into the plugin's own folder (WordPress passes it with a
-     * trailing slash) are not moved onto themselves.
+     * The usual case: the release zip unpacks to blog-post-connector/, the folder the plugin runs
+     * from (WordPress passes it with a trailing slash), so nothing is moved.
      */
     public function test_after_install_skips_move_when_files_are_already_in_plugin_folder() {
         $plugin_folder = WP_PLUGIN_DIR . '/' . dirname(Globals::get_plugin_file());
@@ -213,7 +216,8 @@ class UpdateTest extends TestCase {
      * copy is removed so no second, inactive copy of the plugin is left behind.
      */
     public function test_after_install_returns_error_when_move_fails() {
-        $extracted = WP_PLUGIN_DIR . '/sm-post-connector-package/';
+        $this->running_plugin_file = 'sm-post-connector-package/blog-post-connector.php';
+        $extracted = WP_PLUGIN_DIR . '/blog-post-connector/';
 
         $this->filesystem->shouldReceive('move')->once()->andReturn(false);
         $this->filesystem->shouldReceive('delete')->once()->with($extracted, true)->andReturn(true);
@@ -221,7 +225,7 @@ class UpdateTest extends TestCase {
 
         $result = (new Update())->after_install(
             true,
-            ['plugin' => Globals::get_plugin_file(), 'type' => 'plugin', 'action' => 'update'],
+            ['plugin' => $this->running_plugin_file, 'type' => 'plugin', 'action' => 'update'],
             ['destination' => $extracted]
         );
 

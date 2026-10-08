@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.8]
 - Fixed the self-updater moving other plugins and themes into the Blog Post Connector folder. Its `upgrader_post_install` handler ran for every plugin and theme install and update, and on sites where Blog Post Connector was not in `wp-content/plugins/blog-post-connector/` (for example installed by uploading the release zip, which creates `sm-post-connector-package/`) the item being installed (for example WooCommerce) ended up in that folder and showed as missing. It now acts only when Blog Post Connector itself is updated.
+- Release zips once again hold the plugin in a `blog-post-connector/` folder, as up to 1.0.3, so uploading the zip installs it in `wp-content/plugins/blog-post-connector/`. The 1.0.6 and 1.0.7 zips (`sm-post-connector-package.zip`) had no folder, so WordPress installed them in `sm-post-connector-package/`. Those installs keep updating in place.
 - A failed file move during the plugin's own update now returns an error instead of reporting success.
 - `/create-post` now accepts titles that already exist. WordPress gives the new post a unique slug (`my-post-2`, `my-post-3`), matching the dashboard. The `post_with_title_exists` error has been removed.
 - Added unit tests for the updater's post-install handler.
