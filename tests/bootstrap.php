@@ -76,19 +76,20 @@ if ( ! class_exists( 'WP_User' ) ) {
 }
 
 /**
- * Stand-in for the WP_Query the post handler builds to look for a post with the same
- * title. It never finds one, so a create request proceeds to the insert.
+ * Stand-in for the error the updater returns when it cannot move the updated files.
  */
-if ( ! class_exists( 'WP_Query' ) ) {
-	class WP_Query {
-		public $query_vars;
+if ( ! class_exists( 'WP_Error' ) ) {
+	class WP_Error {
+		public $code;
+		public $message;
 
-		public function __construct( $query = array() ) {
-			$this->query_vars = $query;
+		public function __construct( $code = '', $message = '' ) {
+			$this->code    = $code;
+			$this->message = $message;
 		}
 
-		public function have_posts() {
-			return false;
+		public function get_error_code() {
+			return $this->code;
 		}
 	}
 }

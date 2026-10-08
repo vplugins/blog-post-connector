@@ -12,7 +12,7 @@ class Globals {
     /**
      * @const string PLUGIN_VERSION The current version of the plugin.
      */
-    const PLUGIN_VERSION = '1.0.7';
+    const PLUGIN_VERSION = '1.0.8';
     const WEBHOOK_URL = 'https://social-posts-prod.apigateway.co/vplugin/webhook/blog-post';
 
     /**
@@ -165,7 +165,6 @@ class Globals {
             'date_required_for_future_posts' => __('Date is required for future posts', 'blog-post-connector'),
             'invalid_date_format' => __('Invalid date format for future post', 'blog-post-connector'),
             'date_for_publish_status_must_be_past' => __('Date for publish status must be in the past', 'blog-post-connector'),
-            'post_with_title_exists' => __('A post with the same title already exists', 'blog-post-connector'),
             'post_updated_successfully' => __('Post updated successfully', 'blog-post-connector'),
             'post_created_successfully' => __('Post created successfully', 'blog-post-connector'),
             'failed_to_update_post' => __('Failed to update post', 'blog-post-connector'),

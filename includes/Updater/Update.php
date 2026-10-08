@@ -25,7 +25,8 @@ class Update {
      */
     public function __construct() {
         $this->plugin_slug = Globals::get_plugin_slug();
-        $this->plugin_file = Globals::get_plugin_file();
+        // The copy that is running, wherever it was installed (an uploaded release zip lands in sm-post-connector-package/).
+        $this->plugin_file = plugin_basename(dirname(__DIR__, 2) . '/blog-post-connector.php');
         $this->github_user = Globals::get_github_user();
         $this->github_repo = Globals::get_github_repo();
         $this->github_api_url = Globals::get_github_api_url();
@@ -116,16 +117,32 @@ class Update {
     /**
      * Handles post-installation tasks, such as moving the plugin folder and activating the plugin.
      *
-     * @param array $response The response from the installation process.
+     * upgrader_post_install fires for every plugin/theme install and update, so this only
+     * acts when the upgrader is updating this plugin; anything else is passed through untouched.
+     *
+     * @param bool|\WP_Error $response The response from the installation process.
      * @param array $hook_extra Extra data provided by the upgrader.
      * @param array $result The result of the installation process.
-     * @return array The updated result array.
+     * @return array|bool|\WP_Error The updated result array, or the untouched response for other packages.
      */
     public function after_install($response, $hook_extra, $result) {
+        if (is_wp_error($response) || empty($hook_extra['plugin']) || $hook_extra['plugin'] !== $this->plugin_file) {
+            return $response;
+        }
+
         global $wp_filesystem;
 
         $plugin_folder = WP_PLUGIN_DIR . '/' . dirname($this->plugin_file);
-        $wp_filesystem->move($result['destination'], $plugin_folder);
+        if (untrailingslashit($result['destination']) !== $plugin_folder) {
+            if (!$wp_filesystem->move($result['destination'], $plugin_folder)) {
+                // Drop the extracted copy so a failed update does not leave a second, inactive copy behind.
+                $wp_filesystem->delete($result['destination'], true);
+                return new \WP_Error(
+                    'sm_post_connector_move_failed',
+                    sprintf('Could not move the updated plugin files into %s.', $plugin_folder)
+                );
+            }
+        }
         $result['destination'] = $plugin_folder;
 
         // Run database updates after plugin update

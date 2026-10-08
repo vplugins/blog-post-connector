@@ -121,21 +121,7 @@ abstract class BasePost {
             return $response;
         }
 
-        if (!$is_update && $title) {
-            $existing = new \WP_Query([
-                'post_type'      => 'post',
-                'title'          => $title,
-                'post_status'    => get_post_stati(),
-                'posts_per_page' => 1,
-                'fields'         => 'ids',
-                'no_found_rows'  => true,
-            ]);
-            if ($existing->have_posts()) {
-                $response = Response::error('post_with_title_exists', 400);
-                $this->logger->log($request, $response);
-                return $response;
-            }
-        }
+        // Duplicate titles are allowed; wp_insert_post() generates a unique slug (e.g. my-post-2).
 
         if (!get_user_by('ID', $author_id)) {
             $response = Response::error('invalid_author_id', 400);

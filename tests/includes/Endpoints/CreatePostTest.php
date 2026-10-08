@@ -189,7 +189,6 @@ class CreatePostTest extends TestCase {
                 return $field === 'ID' && isset($users[(int) $value]) ? $users[(int) $value] : false;
             },
         ]);
-        \WP_Mock::userFunction('get_post_stati', ['return' => ['publish', 'draft', 'future']]);
         \WP_Mock::userFunction('sanitize_text_field', ['return' => function ($text) { return $text; }]);
         \WP_Mock::userFunction('wp_kses_post', ['return' => function ($html) { return $html; }]);
         \WP_Mock::userFunction('current_time', ['return' => '2026-10-01 10:00:00']);
