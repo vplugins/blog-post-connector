@@ -9,10 +9,27 @@ use WP_Mock\Tools\TestCase;
 class WebhookTest extends TestCase {
 
     /**
+     * Whether the test runs on a multisite network, and on its main site.
+     */
+    private $multisite = false;
+    private $main_site = true;
+
+    /**
      * Set up the test environment.
      */
     public function setUp(): void {
         \WP_Mock::setUp();
+
+        \WP_Mock::userFunction('is_multisite', [
+            'return' => function () {
+                return $this->multisite;
+            },
+        ]);
+        \WP_Mock::userFunction('is_main_site', [
+            'return' => function () {
+                return $this->main_site;
+            },
+        ]);
     }
 
     /**
@@ -34,6 +51,48 @@ class WebhookTest extends TestCase {
 
         \WP_Mock::userFunction('wp_remote_post', [
             'times' => 0,
+        ]);
+
+        Webhook::trigger_webhook(['action' => 'created']);
+
+        $this->assertConditionsMet();
+    }
+
+    /**
+     * On a multisite subsite nothing is sent, not even a forced lifecycle payload: the plugin
+     * reports the main site only, and a main-site request can switch_to_blog() into a subsite.
+     */
+    public function test_trigger_webhook_is_skipped_on_a_subsite() {
+        $this->multisite = true;
+        $this->main_site = false;
+
+        \WP_Mock::userFunction('wp_remote_post', [
+            'times' => 0,
+        ]);
+
+        Webhook::trigger_webhook(['action' => 'activated'], true);
+
+        $this->assertConditionsMet();
+    }
+
+    /**
+     * On the main site of a multisite network webhooks are sent as on a single site.
+     */
+    public function test_trigger_webhook_sends_request_on_the_main_site() {
+        $this->multisite = true;
+
+        \WP_Mock::userFunction('get_option', [
+            'args' => [Globals::WEBHOOK_ENABLED_OPTION, '1'],
+            'return' => '1',
+        ]);
+
+        \WP_Mock::userFunction('wp_remote_post', [
+            'times' => 1,
+            'return' => ['response' => ['code' => 200]],
+        ]);
+
+        \WP_Mock::userFunction('is_wp_error', [
+            'return' => false,
         ]);
 
         Webhook::trigger_webhook(['action' => 'created']);

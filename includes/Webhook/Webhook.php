@@ -50,6 +50,11 @@ class Webhook {
      * @return void
      */
     public static function trigger_webhook($data = [], $force = false) {
+        // A main-site request can switch_to_blog() and change a subsite's content; that is not ours to report.
+        if (!Globals::is_supported_site()) {
+            return;
+        }
+
         if (!$force && !Globals::is_webhook_enabled()) {
             Globals::bp_error_log('Webhook not triggered: webhook delivery is disabled.');
             return; // Exit if webhook delivery has been disabled by SM.

@@ -2,11 +2,13 @@
 
 namespace VPlugins\BlogPostConnector\Admin;
 
+use VPlugins\BlogPostConnector\Helper\Globals;
+
 class AdminNotices {
     private static bool $initialized = false;
 
     public function __construct() {
-        if (self::$initialized || is_multisite()) return;
+        if (self::$initialized) return;
         self::$initialized = true;
 
         add_action('admin_notices', [$this, 'permalinkNotice']);
@@ -16,16 +18,23 @@ class AdminNotices {
     public function permalinkNotice() {
         if (!current_user_can('manage_options')) return;
 
-        $permalink_structure = get_option('permalink_structure');
-        if ($permalink_structure !== '/%postname%/') {
+        // Any structure other than Plain serves the plugin's REST routes.
+        if (!Globals::isPermalinkPlain()) return;
+
+        echo '<div class="notice notice-warning">';
+        echo '<p><strong>Notice:</strong> The current permalink structure is set to <em>"Plain"</em>, which is not compatible with this plugin’s API routing.</p>';
+        if (is_multisite()) {
+            // On a subdirectory network the main site's post URLs need the /blog/ prefix WordPress adds,
+            // so the structure is left for the admin to pick instead of being overwritten.
+            echo '<p>To ensure proper functionality, choose any structure other than <strong>"Plain"</strong> in ';
+            echo '<a class="button button-primary" href="' . esc_url(admin_url('options-permalink.php')) . '">Permalink Settings</a>.</p>';
+        } else {
             $fix_url = wp_nonce_url(admin_url('admin-post.php?action=fix_permalink_structure'), 'fix_permalink');
-            echo '<div class="notice notice-warning">';
-            echo '<p><strong>Notice:</strong> The current permalink structure is set to <em>"Plain"</em>, which is not compatible with this plugin’s API routing.</p>';
             echo '<p>To ensure proper functionality, it’s recommended to switch to the <strong>"Post name"</strong> structure.<br>';
             echo 'You can update it by clicking <a class="button button-primary" href="' . esc_url($fix_url) . '">here</a>.</p>';
-            echo '<p style="color: #d63638;"><strong>Caution:</strong> Changing the permalink structure may impact existing URLs on your site. Please proceed carefully.</p>';
-            echo '</div>';
         }
+        echo '<p style="color: #d63638;"><strong>Caution:</strong> Changing the permalink structure may impact existing URLs on your site. Please proceed carefully.</p>';
+        echo '</div>';
     }
 
     public function fixPermalinkStructure() {

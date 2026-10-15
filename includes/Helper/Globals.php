@@ -242,6 +242,38 @@ class Globals {
     }
 
     /**
+     * Whether the plugin runs on the current site. On a multisite network it runs on the
+     * main site only; subsites get no endpoints, settings page or webhooks.
+     *
+     * @return bool True on a single site or the network's main site, false on a subsite.
+     */
+    public static function is_supported_site(): bool {
+        return !is_multisite() || is_main_site();
+    }
+
+    /**
+     * Explains why the plugin cannot be activated in the current context.
+     *
+     * @param bool $network_wide Whether the plugin is being network activated.
+     * @return string|null The reason activation is refused, or null when it is allowed.
+     */
+    public static function get_activation_error($network_wide): ?string {
+        if (!is_multisite()) {
+            return null;
+        }
+
+        if ($network_wide) {
+            return __('Blog Post Connector can\'t be network activated. Activate it on the main site only, from that site\'s Plugins screen.', 'blog-post-connector');
+        }
+
+        if (!is_main_site()) {
+            return __('Blog Post Connector works on the main site of a multisite network only. Activate it on the main site.', 'blog-post-connector');
+        }
+
+        return null;
+    }
+
+    /**
      * Check if the site's permalink structure is set to "Plain".
      *
      * @return bool Returns true if permalinks are set to plain (i.e., no custom structure), false otherwise.

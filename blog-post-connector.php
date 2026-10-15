@@ -30,9 +30,29 @@ use VPlugins\BlogPostConnector\Endpoints\{
     WebhookControl
 };
 use VPlugins\BlogPostConnector\Middleware\LoggerMiddleware;
+use VPlugins\BlogPostConnector\Helper\Globals;
 
-// Register plugin activation hook to create logs table
-register_activation_hook(__FILE__, ['VPlugins\BlogPostConnector\Middleware\LoggerMiddleware', 'install']);
+// Registered before the subsite check below so activating on a subsite is refused, not silently allowed.
+register_activation_hook(__FILE__, 'blog_post_connector_activate');
+
+/**
+ * Refuses activation outside the main site of a multisite network, then creates the logs table.
+ *
+ * @param bool $network_wide Whether the plugin is being network activated.
+ */
+function blog_post_connector_activate($network_wide = false) {
+    $error = Globals::get_activation_error($network_wide);
+    if ($error) {
+        wp_die(esc_html($error), esc_html__('Plugin activation error', 'blog-post-connector'), ['back_link' => true]);
+    }
+
+    LoggerMiddleware::install();
+}
+
+// On a multisite network the plugin runs on the main site only.
+if (!Globals::is_supported_site()) {
+    return;
+}
 
 /**
  * Endpoint Registry Class
@@ -78,67 +98,10 @@ class EndpointRegistry {
 // Initialize the plugin endpoints
 EndpointRegistry::initialize();
 
-// Add activation hook to check for multisite before allowing activation
-register_activation_hook(__FILE__, 'blog_post_connector_check_multisite_on_activation');
+require_once plugin_dir_path(__FILE__) . 'includes/Admin/AdminNotices.php';
 
-/**
- * Check if multisite is enabled during plugin activation and set notice flag
- */
-function blog_post_connector_check_multisite_on_activation() {
-    if (is_multisite()) {
-        // Set a transient to show admin notice after activation
-        set_transient('blog_post_connector_multisite_notice', true, 30);
+add_action('plugins_loaded', function () {
+    if (class_exists('\VPlugins\BlogPostConnector\Admin\AdminNotices')) {
+        new \VPlugins\BlogPostConnector\Admin\AdminNotices();
     }
-}
-
-// Add admin notice hooks for multisite warning (always register to catch transient notices)
-add_action('admin_notices', 'blog_post_connector_multisite_notice');
-add_action('network_admin_notices', 'blog_post_connector_multisite_notice');
-
-// Check if this is a multisite installation and prevent further execution
-if (is_multisite()) {
-    // Deactivate the plugin if it's active
-    add_action('admin_init', 'blog_post_connector_deactivate_on_multisite');
-    
-    // Prevent further execution
-    return;
-}
-
-/**
- * Display admin notice warning about multisite compatibility
- */
-function blog_post_connector_multisite_notice() {
-    // Check if we should show the notice (either from transient or current multisite status)
-    if (get_transient('blog_post_connector_multisite_notice') || is_multisite()) {
-        $class = 'notice notice-error';
-        $message = __('Blog Post Connector: This plugin is not compatible with WordPress multisite installations. Please deactivate it to avoid any issues.', 'blog-post-connector');
-        printf('<div class="%1$s"><p>%2$s</p></div>', esc_attr($class), esc_html($message));
-        
-        // Delete the transient after showing the notice
-        delete_transient('blog_post_connector_multisite_notice');
-    }
-}
-
-/**
- * Deactivate plugin on multisite installations
- */
-function blog_post_connector_deactivate_on_multisite() {
-    if (is_plugin_active(plugin_basename(__FILE__))) {
-        deactivate_plugins(plugin_basename(__FILE__));
-        // Remove the activation notice to avoid confusion
-        if (isset($_GET['activate'])) {
-            unset($_GET['activate']);
-        }
-    }
-}
-
-// Load AdminNotices only on single site
-if (!is_multisite()) {
-    require_once plugin_dir_path(__FILE__) . 'includes/Admin/AdminNotices.php';
-
-    add_action('plugins_loaded', function () {
-        if (class_exists('\VPlugins\BlogPostConnector\Admin\AdminNotices')) {
-            new \VPlugins\BlogPostConnector\Admin\AdminNotices();
-        }
-    });
-}
+});
