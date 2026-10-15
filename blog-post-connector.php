@@ -36,12 +36,10 @@ use VPlugins\BlogPostConnector\Helper\Globals;
 register_activation_hook(__FILE__, 'blog_post_connector_activate');
 
 /**
- * Refuses activation outside the main site of a multisite network, then creates the logs table.
- *
- * @param bool $network_wide Whether the plugin is being network activated.
+ * Refuses activation on a multisite subsite, then creates the logs table.
  */
-function blog_post_connector_activate($network_wide = false) {
-    $error = Globals::get_activation_error($network_wide);
+function blog_post_connector_activate() {
+    $error = Globals::get_activation_error();
     if ($error) {
         wp_die(esc_html($error), esc_html__('Plugin activation error', 'blog-post-connector'), ['back_link' => true]);
     }
@@ -49,8 +47,13 @@ function blog_post_connector_activate($network_wide = false) {
     LoggerMiddleware::install();
 }
 
-// On a multisite network the plugin runs on the main site only.
+// On a multisite network the plugin runs on the main site only. Network activated, it is still
+// loaded on every subsite, so keep it off their Plugins screens and do nothing else there.
 if (!Globals::is_supported_site()) {
+    add_filter('all_plugins', function ($plugins) {
+        unset($plugins[plugin_basename(__FILE__)]);
+        return $plugins;
+    });
     return;
 }
 

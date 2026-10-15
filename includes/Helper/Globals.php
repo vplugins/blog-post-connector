@@ -252,25 +252,19 @@ class Globals {
     }
 
     /**
-     * Explains why the plugin cannot be activated in the current context.
+     * Explains why the plugin cannot be activated on the current site.
      *
-     * @param bool $network_wide Whether the plugin is being network activated.
+     * Network activation is allowed: it runs from Network Admin, which is the main site, and
+     * the plugin then stays inactive on subsites (see is_supported_site()).
+     *
      * @return string|null The reason activation is refused, or null when it is allowed.
      */
-    public static function get_activation_error($network_wide): ?string {
-        if (!is_multisite()) {
+    public static function get_activation_error(): ?string {
+        if (self::is_supported_site()) {
             return null;
         }
 
-        if ($network_wide) {
-            return __('Blog Post Connector can\'t be network activated. Activate it on the main site only, from that site\'s Plugins screen.', 'blog-post-connector');
-        }
-
-        if (!is_main_site()) {
-            return __('Blog Post Connector works on the main site of a multisite network only. Activate it on the main site.', 'blog-post-connector');
-        }
-
-        return null;
+        return __('Blog Post Connector works on the main site of a multisite network only. Activate it on the main site, or network activate it from Network Admin.', 'blog-post-connector');
     }
 
     /**

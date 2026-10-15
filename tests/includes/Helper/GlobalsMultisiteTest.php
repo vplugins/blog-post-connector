@@ -44,7 +44,7 @@ class GlobalsMultisiteTest extends TestCase {
      */
     public function test_single_site_is_supported_and_can_activate() {
         $this->assertTrue(Globals::is_supported_site());
-        $this->assertNull(Globals::get_activation_error(false));
+        $this->assertNull(Globals::get_activation_error());
     }
 
     /**
@@ -54,7 +54,7 @@ class GlobalsMultisiteTest extends TestCase {
         $this->multisite = true;
 
         $this->assertTrue(Globals::is_supported_site());
-        $this->assertNull(Globals::get_activation_error(false));
+        $this->assertNull(Globals::get_activation_error());
     }
 
     /**
@@ -65,15 +65,15 @@ class GlobalsMultisiteTest extends TestCase {
         $this->main_site = false;
 
         $this->assertFalse(Globals::is_supported_site());
-        $this->assertStringContainsString('main site', Globals::get_activation_error(false));
+        $this->assertStringContainsString('main site', Globals::get_activation_error());
     }
 
     /**
-     * Network activation is refused, since it would put the plugin on every subsite.
+     * Network activation runs from Network Admin, which is the main site, so it is allowed.
      */
-    public function test_network_activation_is_refused() {
+    public function test_network_activation_from_network_admin_is_allowed() {
         $this->multisite = true;
 
-        $this->assertStringContainsString('network activated', Globals::get_activation_error(true));
+        $this->assertNull(Globals::get_activation_error());
     }
 }
