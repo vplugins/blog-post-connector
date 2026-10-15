@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.9]
+- Added multisite support for the main site. On a multisite network the plugin runs on the main site only: subsites get no API endpoints, settings page or webhooks.
+- Activating the plugin on a subsite, or network activating it, is refused with an explanation. Previously the plugin deactivated itself on any multisite network and showed a "not compatible with WordPress multisite" error on every admin screen; both are removed.
+- Webhooks are no longer sent for content changed on a subsite, including when a main-site request switches to a subsite.
+- The permalink notice now appears only when permalinks are set to "Plain". It previously appeared for any structure other than `/%postname%/`, such as `/blog/%postname%/`, although those work with the plugin. On multisite it links to Permalink Settings instead of overwriting the structure, since the main site of a subdirectory network needs the `/blog/` prefix WordPress adds.
+- Added unit tests for main-site detection, activation rules and subsite webhooks.
+
 ## [1.0.8]
 - Fixed the self-updater moving other plugins and themes into the Blog Post Connector folder. Its `upgrader_post_install` handler ran for every plugin and theme install and update, and on sites where Blog Post Connector was not in `wp-content/plugins/blog-post-connector/` (for example installed by uploading the release zip, which creates `sm-post-connector-package/`) the item being installed (for example WooCommerce) ended up in that folder and showed as missing. It now acts only when Blog Post Connector itself is updated.
 - Release zips once again hold the plugin in a `blog-post-connector/` folder, as up to 1.0.3, so uploading the zip installs it in `wp-content/plugins/blog-post-connector/`. The 1.0.6 and 1.0.7 zips (`sm-post-connector-package.zip`) had no folder, so WordPress installed them in `sm-post-connector-package/`. Those installs keep updating in place.
