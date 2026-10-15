@@ -18,6 +18,12 @@ class Update {
     private $github_api_url;
 
     /**
+     * Whether this copy was network active when its update started. The no-JS update screen deactivates
+     * the plugin before installing, so after_install() re-activates it in the same scope.
+     */
+    private $was_network_active = false;
+
+    /**
      * Update constructor.
      *
      * Initializes the Update class and sets up necessary properties. Adds filters for plugin update checks,
@@ -33,6 +39,8 @@ class Update {
 
         add_filter('pre_set_site_transient_update_plugins', [$this, 'check_for_update'], 10, 1);
         add_filter('plugins_api', [$this, 'plugins_api_handler'], 10, 3);
+        // Priority 9 runs before Plugin_Upgrader::deactivate_plugin_before_upgrade() (priority 10).
+        add_filter('upgrader_pre_install', [$this, 'before_install'], 9, 2);
         add_filter('upgrader_post_install', [$this, 'after_install'], 10, 3);
         
         // Check for database updates on init
@@ -115,6 +123,21 @@ class Update {
     }
 
     /**
+     * Remembers whether this copy is network active before WordPress installs its update.
+     *
+     * @param bool|\WP_Error $response   The installation response.
+     * @param array          $hook_extra Extra data provided by the upgrader.
+     * @return bool|\WP_Error The untouched response.
+     */
+    public function before_install($response, $hook_extra) {
+        if (!empty($hook_extra['plugin']) && $hook_extra['plugin'] === $this->plugin_file) {
+            $this->was_network_active = is_plugin_active_for_network($this->plugin_file);
+        }
+
+        return $response;
+    }
+
+    /**
      * Handles post-installation tasks, such as moving the plugin folder and activating the plugin.
      *
      * upgrader_post_install fires for every plugin/theme install and update, so this only
@@ -148,7 +171,12 @@ class Update {
         // Run database updates after plugin update
         $this->check_database_updates();
 
-        activate_plugin($this->plugin_file);
+        // WordPress keeps the plugin active through an update; only the no-JS update screen deactivates it
+        // first. Activating an active copy again would also add a network-active copy to the main site's
+        // own active plugins, so only a copy that is off is activated, in the scope it had before.
+        if (!is_plugin_active($this->plugin_file)) {
+            activate_plugin($this->plugin_file, '', $this->was_network_active);
+        }
 
         return $result;
     }
