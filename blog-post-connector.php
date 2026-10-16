@@ -51,8 +51,24 @@ function blog_post_connector_activate() {
 // loaded on every subsite, so keep it off their Plugins screens and do nothing else there.
 if (!Globals::is_supported_site()) {
     add_filter('all_plugins', function ($plugins) {
-        unset($plugins[plugin_basename(__FILE__)]);
+        if (function_exists('is_plugin_active_for_network') && is_plugin_active_for_network(plugin_basename(__FILE__))) {
+            unset($plugins[plugin_basename(__FILE__)]);
+        }
         return $plugins;
+    });
+    // A copy activated on this subsite itself (possible before 1.0.9, or with a silent activate_plugin())
+    // does nothing here. Turn it off and say why.
+    add_action('admin_init', function () {
+        $plugin = plugin_basename(__FILE__);
+        if (!is_plugin_active_for_network($plugin) && is_plugin_active($plugin)) {
+            deactivate_plugins($plugin);
+            add_action('admin_notices', function () {
+                printf(
+                    '<div class="notice notice-error"><p>%s</p></div>',
+                    esc_html__('Blog Post Connector was deactivated on this site. It works on the main site of a multisite network only.', 'blog-post-connector')
+                );
+            });
+        }
     });
     return;
 }

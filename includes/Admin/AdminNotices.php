@@ -24,8 +24,8 @@ class AdminNotices {
         echo '<div class="notice notice-warning">';
         echo '<p><strong>Notice:</strong> The current permalink structure is set to <em>"Plain"</em>, which is not compatible with this plugin’s API routing.</p>';
         if (is_multisite()) {
-            // On a subdirectory network the main site's post URLs need the /blog/ prefix WordPress adds,
-            // so the structure is left for the admin to pick instead of being overwritten.
+            // The structure is left for the admin to pick: a subdirectory network's main site normally uses
+            // one that starts with /blog/, which WordPress does not add back after Plain.
             echo '<p>To ensure proper functionality, choose any structure other than <strong>"Plain"</strong> in ';
             echo '<a class="button button-primary" href="' . esc_url(admin_url('options-permalink.php')) . '">Permalink Settings</a>.</p>';
         } else {

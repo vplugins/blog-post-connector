@@ -45,13 +45,13 @@ class UpdateTest extends TestCase {
             },
         ]);
         \WP_Mock::userFunction('is_plugin_active', [
-            'return' => function () {
-                return $this->plugin_active;
+            'return' => function ($plugin) {
+                return $this->plugin_active && $plugin === $this->running_plugin_file;
             },
         ]);
         \WP_Mock::userFunction('is_plugin_active_for_network', [
-            'return' => function () {
-                return $this->network_active;
+            'return' => function ($plugin) {
+                return $this->network_active && $plugin === $this->running_plugin_file;
             },
         ]);
         \WP_Mock::userFunction('untrailingslashit', [
@@ -352,5 +352,55 @@ class UpdateTest extends TestCase {
         $update->__construct();
 
         $this->assertHooksAdded();
+    }
+
+    /**
+     * A copy in sm-post-connector-package/ that WordPress kept active is not activated again.
+     */
+    public function test_after_install_leaves_an_active_copy_in_another_folder_alone() {
+        $this->running_plugin_file = 'sm-post-connector-package/blog-post-connector.php';
+        $this->plugin_active = true;
+        $this->network_active = true;
+        $hook_extra = ['plugin' => $this->running_plugin_file, 'type' => 'plugin', 'action' => 'update'];
+
+        $this->filesystem->shouldNotReceive('move');
+        \WP_Mock::userFunction('get_option', [
+            'args' => ['sm_post_connector_db_version', '0'],
+            'return' => Globals::get_version(),
+        ]);
+        \WP_Mock::userFunction('activate_plugin', ['times' => 0]);
+
+        $update = new Update();
+        $update->before_install(true, $hook_extra);
+        $update->after_install(true, $hook_extra, ['destination' => WP_PLUGIN_DIR . '/sm-post-connector-package/']);
+
+        $this->assertConditionsMet();
+    }
+
+    /**
+     * The no-JS update screen deactivates a network-active copy in sm-post-connector-package/;
+     * it is activated network-wide again under its own file.
+     */
+    public function test_after_install_reactivates_a_copy_in_another_folder_network_wide() {
+        $this->running_plugin_file = 'sm-post-connector-package/blog-post-connector.php';
+        $this->network_active = true;
+        $hook_extra = ['plugin' => $this->running_plugin_file, 'type' => 'plugin', 'action' => 'update'];
+
+        $this->filesystem->shouldNotReceive('move');
+        \WP_Mock::userFunction('get_option', [
+            'args' => ['sm_post_connector_db_version', '0'],
+            'return' => Globals::get_version(),
+        ]);
+        \WP_Mock::userFunction('activate_plugin', [
+            'times' => 1,
+            'args' => [$this->running_plugin_file, '', true],
+        ]);
+
+        $update = new Update();
+        $update->before_install(true, $hook_extra);
+        $this->network_active = false; // Deactivated by Plugin_Upgrader::deactivate_plugin_before_upgrade().
+        $update->after_install(true, $hook_extra, ['destination' => WP_PLUGIN_DIR . '/sm-post-connector-package/']);
+
+        $this->assertConditionsMet();
     }
 }

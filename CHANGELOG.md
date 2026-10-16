@@ -7,10 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.9]
 - Added multisite support for the main site. On a multisite network the plugin runs on the main site only: subsites get no API endpoints, settings page or webhooks.
-- Install it from Network Admin and click **Network Activate**: it shows as Network Active, runs on the main site only, and is hidden from subsites' Plugins screens. Activating it on a single subsite is refused with an explanation. Previously the plugin deactivated itself on any multisite network and showed a "not compatible with WordPress multisite" error on every admin screen; both are removed.
-- Self-updates keep the plugin's activation as it was. Previously every update also activated a network-active plugin on the main site, so Network Deactivate left it running there and Network Admin refused to delete it. A copy deactivated by the update screen is re-activated network-wide or on the main site, as before the update.
+- Install it from Network Admin and click **Network Activate**: it shows as Network Active, runs on the main site only, and is hidden from subsites' Plugins screens. Activating it on a single subsite is refused with an explanation. Previously the plugin deactivated itself on any multisite network at the next admin page load and showed a "not compatible with WordPress multisite" error there; both are removed.
+- A copy activated on a single subsite by an earlier version is deactivated at that subsite's next admin page load, with a notice.
+- Self-updates keep the activation scope: a network-active copy stays network active only, and a copy the update screen deactivates is re-activated network-wide or on the main site, as it was before the update.
 - Webhooks are no longer sent for content changed on a subsite, including when a main-site request switches to a subsite.
-- The permalink notice now appears only when permalinks are set to "Plain". It previously appeared for any structure other than `/%postname%/`, such as `/blog/%postname%/`, although those work with the plugin. On multisite it links to Permalink Settings instead of overwriting the structure, since the main site of a subdirectory network needs the `/blog/` prefix WordPress adds.
+- The permalink notice now appears only when permalinks are set to "Plain". It previously appeared for any structure other than `/%postname%/`, such as `/blog/%postname%/`, although those work with the plugin. On multisite it links to Permalink Settings instead of setting `/%postname%/`. On a subdirectory network, pick a custom structure that starts with `/blog/`, such as `/blog/%postname%/`: WordPress does not add that prefix back after "Plain".
 - Added unit tests for main-site detection, activation rules, subsite webhooks, the updater's re-activation and the permalink notice.
 
 ## [1.0.8]
