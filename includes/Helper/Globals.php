@@ -12,7 +12,7 @@ class Globals {
     /**
      * @const string PLUGIN_VERSION The current version of the plugin.
      */
-    const PLUGIN_VERSION = '1.0.8';
+    const PLUGIN_VERSION = '1.0.9';
     const WEBHOOK_URL = 'https://social-posts-prod.apigateway.co/vplugin/webhook/blog-post';
 
     /**
@@ -239,6 +239,32 @@ class Globals {
 
             error_log($output);
         }
+    }
+
+    /**
+     * Whether the plugin runs on the current site. On a multisite network it runs on the
+     * main site only; subsites get no endpoints, settings page or webhooks.
+     *
+     * @return bool True on a single site or the network's main site, false on a subsite.
+     */
+    public static function is_supported_site(): bool {
+        return !is_multisite() || is_main_site();
+    }
+
+    /**
+     * Explains why the plugin cannot be activated on the current site.
+     *
+     * Network activation is allowed: it runs from Network Admin, which is the main site, and
+     * the plugin then stays inactive on subsites (see is_supported_site()).
+     *
+     * @return string|null The reason activation is refused, or null when it is allowed.
+     */
+    public static function get_activation_error(): ?string {
+        if (self::is_supported_site()) {
+            return null;
+        }
+
+        return __('Blog Post Connector works on the main site of a multisite network only. Activate it on the main site, or network activate it from Network Admin.', 'blog-post-connector');
     }
 
     /**

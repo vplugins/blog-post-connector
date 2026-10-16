@@ -2,11 +2,9 @@
 
 The Blog Post Connector plugin bridges the gap between WordPress and Social Marketing tools, enabling users to manage blog posts directly from their Social Marketing platform.
 
-## Multisite Compatibility Warning
+## Multisite
 
-The Blog Post Connector plugin is **not currently compatible with WordPress Multisite.  
-Activating the plugin on a Multisite network may result in **unexpected behavior or errors**.  
-Please use it only on **single-site WordPress installations** for optimal functionality.
+On a multisite network the plugin runs on the main site only. Install it from Network Admin and click **Network Activate**, or activate it on the main site. Subsites get no API endpoints, settings page or webhooks, and activating it on a single subsite is refused.
 
 ## Features
 
